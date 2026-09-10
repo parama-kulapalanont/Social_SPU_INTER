@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SPU Social Intelligence Admin</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">ADMIN CONSOLE</div>
+        <h1>Social Data Sources</h1>
+        <p>กำหนดว่าจะดึงอะไร แสดงอะไร และลบแหล่งข้อมูลได้จากหน้านี้</p>
+      </div>
+      <button id="signOutBtn" class="secondary hidden">ออกจากระบบ</button>
+    </header>
+
+    <section id="loginPanel" class="panel narrow">
+      <h2>Admin Login</h2>
+      <p>ใช้บัญชีที่ถูกเพิ่มไว้ในตาราง admins ของ Supabase</p>
+      <form id="loginForm" class="login-form">
+        <input id="email" type="email" placeholder="name@spu.ac.th" required>
+        <button type="submit">ส่ง Magic Link</button>
+      </form>
+      <div id="loginMessage" class="message"></div>
+    </section>
+
+    <div id="adminApp" class="hidden">
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Add Source</h2>
+            <p>เพิ่ม Page / Profile / Channel ที่ต้องการติดตาม</p>
+          </div>
+        </div>
+
+        <form id="addForm" class="source-form">
+          <select id="platform" required>
+            <option value="facebook">Facebook</option>
+            <option value="instagram">Instagram</option>
+            <option value="tiktok">TikTok</option>
+          </select>
+          <input id="label" placeholder="ชื่อแหล่งข้อมูล" required>
+          <input id="sourceUrl" type="url" placeholder="URL" required>
+          <input id="postLimit" type="number" min="1" max="100" value="20">
+          <button type="submit">เพิ่มแหล่งข้อมูล</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Source Control</h2>
+            <p>ปรับเปิด/ปิด metric และสั่งดึงข้อมูลได้ทีละแหล่ง</p>
+          </div>
+        </div>
+        <div id="sourceList" class="source-list"></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

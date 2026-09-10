@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SPU Social Intelligence Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">SPU SOCIAL INTELLIGENCE</div>
+        <h1>Social Performance Dashboard</h1>
+        <p>ภาพรวมข้อมูลจากช่องทางที่ผู้ดูแลระบบอนุญาตให้แสดงผล</p>
+      </div>
+      <div id="lastUpdate" class="status">กำลังโหลด...</div>
+    </header>
+
+    <section class="cards">
+      <article><span>Posts</span><strong id="kpiPosts">0</strong></article>
+      <article><span>Views</span><strong id="kpiViews">0</strong></article>
+      <article><span>Likes</span><strong id="kpiLikes">0</strong></article>
+      <article><span>Comments</span><strong id="kpiComments">0</strong></article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Performance by Platform</h2>
+          <p>แสดงเฉพาะข้อมูลที่ถูกเปิดใช้งานจากหลังบ้าน</p>
+        </div>
+      </div>
+      <div id="platformCards" class="platform-grid"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Latest Posts</h2>
+          <p>โพสต์ล่าสุดจากทุกแหล่งข้อมูลที่เปิดใช้งาน</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Platform</th>
+              <th>Source</th>
+              <th>Caption</th>
+              <th>Views</th>
+              <th>Likes</th>
+              <th>Comments</th>
+              <th>Shares</th>
+            </tr>
+          </thead>
+          <tbody id="postRows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>

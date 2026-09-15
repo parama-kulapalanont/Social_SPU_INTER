@@ -12,14 +12,22 @@
       <div>
         <div class="eyebrow">SPU SOCIAL INTELLIGENCE</div>
         <h1>Social Data Collection</h1>
-        <p>ควบคุมการดึงข้อมูล Facebook และ Instagram จากหน้า Admin</p>
+        <p>Admin สำหรับควบคุมการดึงข้อมูล Facebook และ Instagram</p>
       </div>
       <div id="userBadge" class="user-badge hidden"></div>
     </header>
 
-    <section id="loginPanel" class="panel notice">
+    <section id="configError" class="panel notice hidden">
+      <h2>ยังไม่ได้ตั้งค่า Supabase</h2>
+      <p>
+        กรุณาใส่ Project URL และ Publishable Key ของ Supabase Project
+        ที่ใช้เก็บ Social Intelligence ในไฟล์ config.js ก่อน
+      </p>
+    </section>
+
+    <section id="loginPanel" class="panel notice hidden">
       <h2>เข้าสู่ระบบผู้ดูแล</h2>
-      <p>ใช้บัญชี Google ของมหาวิทยาลัยที่ได้รับสิทธิ์เท่านั้น</p>
+      <p>ยืนยันตัวตนผ่าน Supabase Auth ของ Social Intelligence Project</p>
       <button id="googleLoginBtn" class="primary-action" style="margin-top:16px">
         เข้าสู่ระบบด้วย Google
       </button>
@@ -29,7 +37,9 @@
     <section id="forbiddenPanel" class="panel notice hidden">
       <h2>ไม่มีสิทธิ์ใช้งาน</h2>
       <p id="forbiddenMessage">บัญชีนี้ไม่ได้รับสิทธิ์ควบคุม Social Intelligence</p>
-      <button id="signOutForbiddenBtn" class="secondary" style="margin-top:16px">ออกจากระบบ</button>
+      <button id="signOutForbiddenBtn" class="secondary" style="margin-top:16px">
+        ออกจากระบบ
+      </button>
     </section>
 
     <section id="adminApp" class="hidden">
@@ -38,7 +48,7 @@
           <div>
             <div class="eyebrow">MANUAL COLLECTION</div>
             <h2>ดึงข้อมูลใหม่</h2>
-            <p>กดเมื่อคุณต้องการเริ่มดึงข้อมูลใหม่ ระบบจะทำงานพร้อมกันสูงสุด 2 Source</p>
+            <p>ระบบจะสร้าง Batch ใหม่และทำงานพร้อมกันสูงสุด 2 Source</p>
           </div>
           <div class="collection-actions">
             <button id="signOutBtn" class="secondary">ออกจากระบบ</button>
@@ -62,7 +72,7 @@
             <span id="progressLabel">0 / 0 Sources</span>
             <span id="progressPercent">0%</span>
           </div>
-          <div class="progress-track" role="progressbar" aria-label="Collection progress"
+          <div class="progress-track" role="progressbar"
                aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
             <div id="progressBar" class="progress-bar"></div>
           </div>

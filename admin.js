@@ -23,12 +23,8 @@ function setMessage(message = "", type = "") {
 
 function formatDate(value) {
   if (!value) return "—";
-
   const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return String(value);
-  }
+  if (Number.isNaN(date.getTime())) return String(value);
 
   return new Intl.DateTimeFormat("th-TH", {
     dateStyle: "medium",
@@ -38,13 +34,11 @@ function formatDate(value) {
 }
 
 function statusLabel(status) {
-  const labels = {
+  return {
     active: "กำลังทำงาน",
     completed: "เสร็จแล้ว",
     completed_with_errors: "เสร็จพร้อมข้อผิดพลาด"
-  };
-
-  return labels[status] || status || "ยังไม่มี Batch";
+  }[status] || status || "ยังไม่มี Batch";
 }
 
 function stopPolling() {
@@ -56,20 +50,7 @@ function stopPolling() {
 
 function schedulePolling(delay = 3000) {
   stopPolling();
-
-  pollTimer = setTimeout(async () => {
-    await loadCollectionStatus(currentBatchId);
-  }, delay);
-}
-
-async function currentSession() {
-  const { data, error } = await db.auth.getSession();
-
-  if (error) {
-    throw error;
-  }
-
-  return data.session;
+  pollTimer = setTimeout(() => loadCollectionStatus(currentBatchId), delay);
 }
 
 async function invokeControl(body) {
@@ -80,23 +61,13 @@ async function invokeControl(body) {
 
   if (error) {
     let message = error.message || "ไม่สามารถเรียก Social Collection Control ได้";
-
     try {
-      const context = error.context;
-
-      if (context && typeof context.json === "function") {
-        const payload = await context.json();
-
-        if (payload?.message) message = payload.message;
-        else if (payload?.error) message = payload.error;
+      if (error.context && typeof error.context.json === "function") {
+        const payload = await error.context.json();
+        message = payload?.message || payload?.error || message;
       }
-    } catch {
-      // ใช้ข้อความ error เดิม
-    }
-
-    const wrapped = new Error(message);
-    wrapped.original = error;
-    throw wrapped;
+    } catch {}
+    throw new Error(message);
   }
 
   return data;
@@ -111,11 +82,8 @@ function renderBatchStatus(payload) {
   const dispatched = Number(progress.dispatched || 0);
   const pending = Number(progress.pending || 0);
   const failed = Number(progress.failed || 0);
-
   const finished = completed + failed;
-  const percent = total > 0
-    ? Math.min(100, Math.round((finished / total) * 100))
-    : 0;
+  const percent = total > 0 ? Math.min(100, Math.round((finished / total) * 100)) : 0;
 
   currentBatchId = batch?.batch_id || null;
 
@@ -128,9 +96,7 @@ function renderBatchStatus(payload) {
   $("#progressLabel").textContent = `${finished} / ${total} Sources`;
   $("#progressPercent").textContent = `${percent}%`;
   $("#progressBar").style.width = `${percent}%`;
-
-  const progressTrack = $(".progress-track");
-  progressTrack?.setAttribute("aria-valuenow", String(percent));
+  $(".progress-track")?.setAttribute("aria-valuenow", String(percent));
 
   $("#batchId").textContent = batch?.batch_id || "—";
   $("#batchStarted").textContent = formatDate(batch?.started_at);
@@ -149,13 +115,12 @@ function renderBatchStatus(payload) {
     schedulePolling(3000);
   } else {
     stopPolling();
-
     if (batch?.status === "completed") {
       setMessage(`Batch ล่าสุดเสร็จครบ ${completed}/${total} Sources`, "success");
     } else if (batch?.status === "completed_with_errors") {
       setMessage(`Batch จบแล้ว แต่มี ${failed} Source ที่ผิดพลาด`, "error");
-    } else if (!batch) {
-      setMessage("ยังไม่มี Batch ล่าสุด กด “ดึงข้อมูลใหม่” เพื่อเริ่ม", "info");
+    } else {
+      setMessage("พร้อมดึงข้อมูล", "info");
     }
   }
 }
@@ -166,24 +131,10 @@ async function loadCollectionStatus(batchId = null) {
       action: "status",
       ...(batchId ? { batch_id: batchId } : {})
     });
-
     renderBatchStatus(payload);
-
-    return payload;
   } catch (error) {
     stopPolling();
-
-    const message = error.message || "โหลดสถานะไม่สำเร็จ";
-
-    if (/forbidden|not allowed|ไม่มีสิทธิ์/i.test(message)) {
-      $("#adminApp").classList.add("hidden");
-      $("#forbiddenPanel").classList.remove("hidden");
-      $("#forbiddenMessage").textContent = message;
-      return null;
-    }
-
-    setMessage(message, "error");
-    throw error;
+    setMessage(error.message || "โหลดสถานะไม่สำเร็จ", "error");
   }
 }
 
@@ -191,102 +142,60 @@ async function startCollection() {
   if (isStarting) return;
 
   isStarting = true;
-
   const button = $("#startCollectionBtn");
   button.disabled = true;
   button.textContent = "กำลังสร้าง Batch...";
   setMessage("กำลังสร้าง Batch ใหม่...", "info");
 
   try {
-    const payload = await invokeControl({
-      action: "start"
-    });
-
+    const payload = await invokeControl({ action: "start" });
     renderBatchStatus(payload);
   } catch (error) {
     setMessage(error.message || "เริ่มดึงข้อมูลไม่สำเร็จ", "error");
   } finally {
     isStarting = false;
-
-    if ($("#batchStatus").textContent !== "กำลังทำงาน") {
-      button.disabled = false;
-      button.textContent = "ดึงข้อมูลใหม่";
-    }
   }
 }
 
-async function refreshAuthUI() {
+async function boot() {
+  if (cfg.LOGIN_URL) $("#mainLoginLink").href = cfg.LOGIN_URL;
   stopPolling();
 
-  const session = await currentSession();
+  // จุดสำคัญ: หน้านี้ไม่ Sign in, ไม่ส่ง Magic Link และไม่สร้าง Auth flow ใหม่
+  const { data, error } = await db.auth.getSession();
 
-  const loggedIn = !!session;
-
-  $("#loginPanel").classList.toggle("hidden", loggedIn);
-  $("#signOutBtn").classList.toggle("hidden", !loggedIn);
-  $("#userBadge").classList.toggle("hidden", !loggedIn);
-
-  if (!loggedIn) {
-    $("#adminApp").classList.add("hidden");
-    $("#forbiddenPanel").classList.add("hidden");
-    $("#userBadge").textContent = "";
+  if (error) {
+    $("#sessionNotice").classList.remove("hidden");
     return;
   }
 
-  $("#userBadge").textContent = session.user?.email || "Signed in";
-  $("#forbiddenPanel").classList.add("hidden");
+  const session = data?.session;
+
+  if (!session) {
+    $("#sessionNotice").classList.remove("hidden");
+    $("#adminApp").classList.add("hidden");
+    $("#userBadge").classList.add("hidden");
+    return;
+  }
+
+  $("#sessionNotice").classList.add("hidden");
+  $("#userBadge").classList.remove("hidden");
+  $("#userBadge").textContent = session.user?.email || "Admin";
   $("#adminApp").classList.remove("hidden");
 
-  try {
-    await loadCollectionStatus();
-  } catch {
-    // UI แสดง error อยู่แล้ว
-  }
+  await loadCollectionStatus();
 }
-
-$("#loginForm").addEventListener("submit", async (event) => {
-  event.preventDefault();
-
-  const email = $("#email").value.trim();
-
-  $("#loginMessage").textContent = "กำลังส่งลิงก์เข้าสู่ระบบ...";
-
-  const { error } = await db.auth.signInWithOtp({
-    email,
-    options: {
-      emailRedirectTo: `${location.origin}${location.pathname}`
-    }
-  });
-
-  $("#loginMessage").textContent = error
-    ? error.message
-    : "ส่ง Magic Link แล้ว กรุณาตรวจสอบอีเมล";
-});
-
-$("#signOutBtn").addEventListener("click", async () => {
-  stopPolling();
-  await db.auth.signOut();
-  location.reload();
-});
 
 $("#startCollectionBtn").addEventListener("click", startCollection);
 
-$("#refreshStatusBtn").addEventListener("click", async () => {
+$("#refreshStatusBtn").addEventListener("click", () => {
   setMessage("กำลังรีเฟรชสถานะ...", "info");
-
-  try {
-    await loadCollectionStatus(currentBatchId);
-  } catch {
-    // UI แสดง error อยู่แล้ว
-  }
+  loadCollectionStatus(currentBatchId);
 });
 
 db.auth.onAuthStateChange((_event, session) => {
-  if (!session) {
-    stopPolling();
-  }
-
-  refreshAuthUI();
+  if (!session) stopPolling();
+  boot();
 });
 
-refreshAuthUI();
+boot();

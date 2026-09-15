@@ -12,49 +12,36 @@
       <div>
         <div class="eyebrow">SPU SOCIAL INTELLIGENCE</div>
         <h1>Social Data Collection</h1>
-        <p>ดึงข้อมูล Facebook และ Instagram แบบกดเอง พร้อมติดตามสถานะ Batch แบบเรียลไทม์</p>
+        <p>ควบคุมการดึงข้อมูล Facebook และ Instagram จากหน้า Admin</p>
       </div>
-
-      <div class="topbar-actions">
-        <div id="userBadge" class="user-badge hidden"></div>
-        <button id="signOutBtn" class="secondary hidden">ออกจากระบบ</button>
-      </div>
+      <div id="userBadge" class="user-badge hidden"></div>
     </header>
 
-    <section id="loginPanel" class="panel narrow">
-      <h2>Admin Login</h2>
-      <p>เข้าสู่ระบบด้วยอีเมล Admin ที่ได้รับสิทธิ์ใช้งาน Social Intelligence</p>
-
-      <form id="loginForm" class="login-form">
-        <input
-          id="email"
-          type="email"
-          placeholder="name@spu.ac.th"
-          autocomplete="email"
-          required
-        >
-        <button type="submit">ส่ง Magic Link</button>
-      </form>
-
-      <div id="loginMessage" class="message"></div>
+    <section id="sessionNotice" class="panel notice hidden">
+      <h2>ยังไม่ได้เข้าสู่ระบบ</h2>
+      <p>
+        หน้านี้ไม่สร้างระบบ Login ใหม่ และไม่ใช้ Magic Link
+        กรุณาเข้าสู่ระบบผ่านระบบ Login หลักของเว็บไซต์ก่อน แล้วกลับมาหน้านี้อีกครั้ง
+      </p>
+      <a id="mainLoginLink" class="button-link" href="/login.html">ไปหน้า Login หลัก</a>
     </section>
 
-    <section id="forbiddenPanel" class="panel narrow hidden">
+    <section id="forbiddenPanel" class="panel notice hidden">
       <h2>ไม่มีสิทธิ์ใช้งาน</h2>
       <p id="forbiddenMessage">
         บัญชีนี้เข้าสู่ระบบแล้ว แต่ไม่ได้รับสิทธิ์ควบคุม Social Intelligence
       </p>
     </section>
 
-    <div id="adminApp" class="hidden">
+    <section id="adminApp" class="hidden">
       <section class="panel collection-hero">
         <div class="collection-head">
           <div>
             <div class="eyebrow">MANUAL COLLECTION</div>
             <h2>ดึงข้อมูลใหม่</h2>
             <p>
-              ระบบจะสร้าง Batch ใหม่เมื่อกดปุ่ม และ Worker จะเปิดพร้อมกันสูงสุด 2 Source
-              เพื่อไม่ให้ชน Memory Limit ของ Apify
+              กดเมื่อคุณต้องการให้ระบบเริ่มดึงข้อมูลใหม่เท่านั้น
+              ระบบจะเปิด Actor พร้อมกันสูงสุด 2 Source
             </p>
           </div>
 
@@ -71,22 +58,18 @@
             <span>สถานะ Batch</span>
             <strong id="batchStatus">—</strong>
           </article>
-
           <article>
             <span>เสร็จแล้ว</span>
             <strong id="completedCount">0</strong>
           </article>
-
           <article>
             <span>กำลังทำงาน</span>
             <strong id="runningCount">0</strong>
           </article>
-
           <article>
             <span>รอคิว</span>
             <strong id="pendingCount">0</strong>
           </article>
-
           <article>
             <span>ผิดพลาด</span>
             <strong id="failedCount">0</strong>
@@ -98,15 +81,8 @@
             <span id="progressLabel">0 / 0 Sources</span>
             <span id="progressPercent">0%</span>
           </div>
-
-          <div
-            class="progress-track"
-            role="progressbar"
-            aria-label="Collection progress"
-            aria-valuemin="0"
-            aria-valuemax="100"
-            aria-valuenow="0"
-          >
+          <div class="progress-track" role="progressbar" aria-label="Collection progress"
+               aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
             <div id="progressBar" class="progress-bar"></div>
           </div>
         </div>
@@ -116,40 +92,21 @@
             <span>Batch ID</span>
             <strong id="batchId">—</strong>
           </div>
-
           <div>
             <span>เริ่ม</span>
             <strong id="batchStarted">—</strong>
           </div>
-
           <div>
             <span>เสร็จ</span>
             <strong id="batchFinished">—</strong>
           </div>
-
           <div>
             <span>โหมด</span>
             <strong>Manual</strong>
           </div>
         </div>
       </section>
-
-      <section class="panel">
-        <div class="panel-head">
-          <div>
-            <h2>วิธีทำงาน</h2>
-            <p>ระบบจะไม่เริ่ม Batch ใหม่เองจนกว่า Admin จะกดปุ่ม</p>
-          </div>
-        </div>
-
-        <div class="flow-grid">
-          <div><b>1</b><span>Admin กดดึงข้อมูลใหม่</span></div>
-          <div><b>2</b><span>สร้าง Batch จาก Source ที่ Active</span></div>
-          <div><b>3</b><span>Worker รันพร้อมกันสูงสุด 2 Source</span></div>
-          <div><b>4</b><span>เก็บโพสต์ใหม่ + Metrics History</span></div>
-        </div>
-      </section>
-    </div>
+    </section>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

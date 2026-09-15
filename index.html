@@ -2,48 +2,63 @@
 <html lang="th">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SPU Strategic Benchmark & Institution Insights</title>
-<link rel="stylesheet" href="dashboard-v2.css?v=1">
+<title>ภาพรวมเชิงกลยุทธ์ SPU</title>
+<link rel="stylesheet" href="dashboard-v2.css?v=2">
 </head>
 <body>
 <div class="app">
 <aside class="sidebar">
   <div class="brand"><div class="spu"><span>SPU</span> |</div><div class="sub">SOCIAL<br>INTELLIGENCE</div></div>
-  <nav class="nav"><a href="index.html" class="active"><span class="ico">▥</span>Dashboard</a><a href="benchmark.html" class=""><span class="ico">⇄</span>SPU Benchmark</a><a href="institutions.html" class=""><span class="ico">⌂</span>Institution Insights</a></nav>
+  <nav class="nav"><a href="index.html" class="active"><span class="ico">▥</span>ภาพรวม</a><a href="benchmark.html" class=""><span class="ico">⇄</span>SPU Benchmark</a><a href="institutions.html" class=""><span class="ico">⌂</span>Insight รายสถาบัน</a></nav>
   <div class="sidebar-bottom"><b>Turning Social Data into Greater Impact</b><br><br>SRIPATUM UNIVERSITY</div>
 </aside>
 <main class="main">
-<div class="topbar"><div><div class="eyebrow">DATA · INSIGHT · IMPACT</div><h1>SPU Strategic Benchmark & Institution Insights</h1><p class="subtitle">SPU-first executive view with peer comparison and institution profiles.</p></div><div class="updated" id="lastUpdated">Updated —</div></div>
-
+  <div class="topbar">
+    <div><div class="eyebrow">SPU SOCIAL INTELLIGENCE</div><h1>ภาพรวมเชิงกลยุทธ์ SPU</h1><p class="subtitle">มุมมองสำหรับเปรียบเทียบ SPU กับสถาบันอื่นจากข้อมูล Social Media ที่เก็บได้</p></div>
+    <div class="updated" id="lastUpdated">กำลังโหลด...</div>
+  </div>
+  
 <div class="filters">
-  <div class="filter"><label>Time Period</label><select><option>All collected data</option></select></div>
-  <div class="filter"><label>Platform</label><select><option>Facebook + Instagram</option></select></div>
-  <div class="filter"><label>Comparison Set</label><select><option>All institutions</option></select></div>
+  <div class="filter">
+    <label>ช่วงเวลา</label>
+    <select id="periodFilter"></select>
+  </div>
+  <div class="filter">
+    <label>Platform</label>
+    <select id="platformFilter"></select>
+  </div>
+  <div class="filter">
+    <label>สถาบันเปรียบเทียบ</label>
+    <select id="institutionFilter"></select>
+  </div>
 </div>
-<div class="section-title"><div><h2>SPU Benchmark Snapshot</h2><p>SPU performance first, then compare with peer patterns.</p></div></div>
+<div class="filter-summary" id="filterSummary">กำลังโหลดข้อมูล...</div>
+  
+<div class="section-title"><div><h2>ภาพรวม SPU</h2><p>เริ่มจากผลของ SPU แล้วจึงเปรียบเทียบกับสถาบันอื่น</p></div></div>
 <section class="grid kpis">
- <div class="card kpi"><div class="icon">▤</div><div><div class="label">SPU Posts</div><div class="value" id="kpiPosts">0</div></div></div>
- <div class="card kpi"><div class="icon">◉</div><div><div class="label">SPU Views</div><div class="value" id="kpiViews">0</div></div></div>
- <div class="card kpi"><div class="icon">♥</div><div><div class="label">SPU Likes</div><div class="value" id="kpiLikes">0</div></div></div>
- <div class="card kpi"><div class="icon">◌</div><div><div class="label">SPU Comments</div><div class="value" id="kpiComments">0</div></div></div>
- <div class="card kpi"><div class="icon">⇄</div><div><div class="label">SPU vs peer avg.</div><div class="value" id="peerDelta">0%</div><div class="hint">Interactions per post</div></div></div>
+ <div class="card kpi"><div class="icon">▤</div><div><div class="label">Posts ของ SPU</div><div class="value" id="kpiPosts">0</div></div></div>
+ <div class="card kpi"><div class="icon">◉</div><div><div class="label">Views ของ SPU</div><div class="value" id="kpiViews">0</div></div></div>
+ <div class="card kpi"><div class="icon">♥</div><div><div class="label">Likes ของ SPU</div><div class="value" id="kpiLikes">0</div></div></div>
+ <div class="card kpi"><div class="icon">◌</div><div><div class="label">Comments ของ SPU</div><div class="value" id="kpiComments">0</div></div></div>
+ <div class="card kpi"><div class="icon">⇄</div><div><div class="label">SPU เทียบค่าเฉลี่ยคู่เทียบ</div><div class="value" id="peerDelta">0%</div><div class="hint">Interactions ต่อ Post</div></div></div>
 </section>
-<div class="section-title"><div><h2>SPU vs Others</h2><p>Comparison using metrics actually available in collected posts.</p></div></div>
+<div class="section-title"><div><h2>SPU เทียบสถาบันอื่น</h2><p>เปรียบเทียบด้วย Metrics ที่มีอยู่จริงในชุดข้อมูล</p></div></div>
 <section class="grid two-col">
- <div class="card chart-card"><h3>Total Posts by Institution</h3><div class="canvas-wrap"><canvas id="postsChart"></canvas></div></div>
- <div class="card chart-card"><h3>Interaction Comparison</h3><div class="canvas-wrap"><canvas id="interactionsChart"></canvas></div></div>
+ <div class="card chart-card"><h3>จำนวน Posts แยกตามสถาบัน</h3><div class="canvas-wrap"><canvas id="postsChart"></canvas></div></div>
+ <div class="card chart-card"><h3>เปรียบเทียบ Interactions</h3><div class="canvas-wrap"><canvas id="interactionsChart"></canvas></div></div>
 </section>
-<div class="section-title" style="margin-top:14px"><div><h2>Institution Insight Profiles</h2><p>At-a-glance profile for every monitored institution.</p></div></div>
+<div class="section-title" style="margin-top:14px"><div><h2>Insight รายสถาบัน</h2><p>สรุปภาพรวมของแต่ละสถาบันจาก Filter ที่เลือก</p></div></div>
 <section class="grid profile-grid" id="profiles"></section>
-<div class="section-title" style="margin-top:14px"><div><h2>Executive Takeaways</h2><p>Calculated from current data; no invented engagement-rate assumptions.</p></div></div>
+<div class="section-title" style="margin-top:14px"><div><h2>ข้อค้นพบสำคัญ</h2><p>คำนวณจากข้อมูลที่มีอยู่จริง โดยไม่สร้าง Engagement Rate ที่ไม่มีฐานข้อมูลรองรับ</p></div></div>
 <section class="insights" id="takeaways"></section>
-<div class="section-title" style="margin-top:14px"><div><h2>Top Performing Content</h2><p>Highest measured likes + comments + shares.</p></div></div>
+<div class="section-title" style="margin-top:14px"><div><h2>Posts ที่มีผลตอบรับสูง</h2><p>จัดอันดับจาก Likes + Comments + Shares และสามารถกดดูรายละเอียดได้</p></div></div>
 <section class="posts" id="topPosts"></section>
+
 </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="config.js?v=20260915-2"></script>
-<script src="dashboard-data.js?v=1"></script>
-<script src="overview.js?v=1"></script>
+<script src="config.js?v=20260915-3"></script>
+<script src="dashboard-data.js?v=2"></script>
+<script src="overview.js?v=2"></script>
 </body></html>

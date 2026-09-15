@@ -20,7 +20,7 @@ const instName = code => ({
 let __allRows = [];
 let __postRegistry = {};
 let __postCounter = 0;
-let __filterState = {period:"all", platform:"all", institution:"all"};
+let __filterState = {period:"all", platform:"all", institutions:[]};
 let __filterOptions = {mode:"comparison"};
 
 async function fetchRows(){
@@ -207,6 +207,7 @@ function bindPostCards(){
 function filterRows(rows, state=__filterState, options=__filterOptions){
   const now = Date.now();
   const days = state.period==="all" ? null : Number(state.period);
+  const selected = Array.isArray(state.institutions) ? state.institutions : [];
 
   return rows.filter(r=>{
     if(state.platform!=="all" && r.platform!==state.platform) return false;
@@ -217,11 +218,11 @@ function filterRows(rows, state=__filterState, options=__filterOptions){
       if(Number.isNaN(t) || t < now - days*86400000) return false;
     }
 
-    if(state.institution!=="all"){
+    if(selected.length){
       if(options.mode==="comparison"){
-        if(!["SPU",state.institution].includes(r.institution_code)) return false;
+        if(r.institution_code!=="SPU" && !selected.includes(r.institution_code)) return false;
       } else {
-        if(r.institution_code!==state.institution) return false;
+        if(!selected.includes(r.institution_code)) return false;
       }
     }
 
@@ -230,24 +231,30 @@ function filterRows(rows, state=__filterState, options=__filterOptions){
 }
 
 function filterSummaryText(rows){
-  const inst = __filterState.institution==="all"
-    ? (__filterOptions.mode==="comparison" ? "ทุกสถาบัน" : "ทุกสถาบัน")
-    : (__filterOptions.mode==="comparison"
-        ? `SPU เทียบ ${__filterState.institution}`
-        : __filterState.institution);
+  const selected = Array.isArray(__filterState.institutions) ? __filterState.institutions : [];
 
-  const platform = __filterState.platform==="all" ? "Facebook + Instagram" : platformLabel(__filterState.platform);
+  let instText;
+  if(!selected.length){
+    instText = __filterOptions.mode==="comparison" ? "SPU เทียบทุกสถาบัน" : "ทุกสถาบัน";
+  } else if(__filterOptions.mode==="comparison"){
+    instText = `SPU เทียบ ${selected.join(", ")}`;
+  } else {
+    instText = selected.join(", ");
+  }
+
+  const platform = __filterState.platform==="all" ? "ทุก Platform" : platformLabel(__filterState.platform);
   const period = __filterState.period==="all" ? "ข้อมูลทั้งหมด" : `${__filterState.period} วันล่าสุด`;
 
-  return `${inst} · ${platform} · ${period} · ${fmt(rows.length)} Posts`;
+  return `${instText} · ${platform} · ${period} · ${fmt(rows.length)} Posts`;
 }
 
 function initFilters(rows, onChange, options={mode:"comparison"}){
   __filterOptions = options;
+
   const p = document.querySelector("#periodFilter");
   const pf = document.querySelector("#platformFilter");
-  const i = document.querySelector("#institutionFilter");
-  if(!p || !pf || !i) return;
+  const institutionHost = document.querySelector("#institutionFilterHost");
+  if(!p || !pf || !institutionHost) return;
 
   p.innerHTML = `
     <option value="all">ข้อมูลทั้งหมด</option>
@@ -266,28 +273,94 @@ function initFilters(rows, onChange, options={mode:"comparison"}){
     return a.localeCompare(b);
   });
 
-  const codeOptions = options.mode==="comparison"
+  const availableCodes = options.mode==="comparison"
     ? codes.filter(x=>x!=="SPU")
     : codes;
 
-  i.innerHTML = `<option value="all">${options.mode==="comparison" ? "ทุกสถาบันเปรียบเทียบ" : "ทุกสถาบัน"}</option>` +
-    codeOptions.map(code=>`<option value="${esc(code)}">${esc(code)} — ${esc(instName(code))}</option>`).join("");
+  institutionHost.innerHTML = `
+    <div class="multi-select" id="institutionMulti">
+      <button type="button" class="multi-select-btn" id="institutionMultiBtn" aria-expanded="false">
+        <span class="label">${options.mode==="comparison" ? "ทุกสถาบันเปรียบเทียบ" : "ทุกสถาบัน"}</span>
+        <span class="multi-select-count" id="institutionMultiCount">0</span>
+      </button>
+      <div class="multi-select-menu" id="institutionMultiMenu">
+        <div class="multi-select-tools">
+          <button type="button" id="selectAllInstitutions">เลือกทั้งหมด</button>
+          <button type="button" id="clearInstitutions">ล้างที่เลือก</button>
+        </div>
+        ${availableCodes.map(code=>`
+          <label class="multi-select-option">
+            <input type="checkbox" value="${esc(code)}">
+            <span><b>${esc(code)}</b><small>${esc(instName(code))}</small></span>
+          </label>`).join("")}
+      </div>
+    </div>`;
+
+  const multi = document.querySelector("#institutionMulti");
+  const btn = document.querySelector("#institutionMultiBtn");
+  const menu = document.querySelector("#institutionMultiMenu");
+  const count = document.querySelector("#institutionMultiCount");
+  const label = btn.querySelector(".label");
+
+  const selectedCodes = () =>
+    [...menu.querySelectorAll('input[type="checkbox"]:checked')].map(x=>x.value);
+
+  const updateLabel = () => {
+    const selected = selectedCodes();
+    count.textContent = selected.length;
+
+    if(!selected.length){
+      label.textContent = options.mode==="comparison" ? "ทุกสถาบันเปรียบเทียบ" : "ทุกสถาบัน";
+    } else if(selected.length <= 3){
+      label.textContent = selected.join(", ");
+    } else {
+      label.textContent = `เลือกแล้ว ${selected.length} สถาบัน`;
+    }
+  };
 
   const fire = ()=>{
     __filterState = {
       period:p.value,
       platform:pf.value,
-      institution:i.value
+      institutions:selectedCodes()
     };
+
+    updateLabel();
+
     const filtered = filterRows(rows,__filterState,options);
     const summary = document.querySelector("#filterSummary");
     if(summary) summary.textContent = filterSummaryText(filtered);
     onChange(filtered,__filterState);
   };
 
+  btn.addEventListener("click",()=>{
+    const isOpen = multi.classList.toggle("open");
+    btn.setAttribute("aria-expanded", String(isOpen));
+  });
+
+  menu.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+    cb.addEventListener("change",fire);
+  });
+
+  document.querySelector("#selectAllInstitutions").addEventListener("click",()=>{
+    menu.querySelectorAll('input[type="checkbox"]').forEach(cb=>cb.checked=true);
+    fire();
+  });
+
+  document.querySelector("#clearInstitutions").addEventListener("click",()=>{
+    menu.querySelectorAll('input[type="checkbox"]').forEach(cb=>cb.checked=false);
+    fire();
+  });
+
+  document.addEventListener("click",e=>{
+    if(!multi.contains(e.target)){
+      multi.classList.remove("open");
+      btn.setAttribute("aria-expanded","false");
+    }
+  });
+
   p.addEventListener("change",fire);
   pf.addEventListener("change",fire);
-  i.addEventListener("change",fire);
 
   fire();
 }

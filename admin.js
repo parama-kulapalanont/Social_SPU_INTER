@@ -1,7 +1,8 @@
 const cfg = window.SPU_SOCIAL_CONFIG || {};
+const $ = (s) => document.querySelector(s);
 
 if (!cfg.SUPABASE_URL || !cfg.SUPABASE_PUBLISHABLE_KEY) {
-  throw new Error("Missing Supabase configuration in config.js");
+  throw new Error("Missing Supabase configuration");
 }
 
 const db = window.supabase.createClient(
@@ -9,58 +10,51 @@ const db = window.supabase.createClient(
   cfg.SUPABASE_PUBLISHABLE_KEY
 );
 
-const $ = (selector) => document.querySelector(selector);
-
 let pollTimer = null;
 let currentBatchId = null;
 let isStarting = false;
 
 function setMessage(message = "", type = "") {
   const el = $("#statusMessage");
+  if (!el) return;
   el.textContent = message;
   el.className = `message ${type}`.trim();
 }
 
-function formatDate(value) {
-  if (!value) return "—";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return String(value);
+function stopPolling() {
+  if (pollTimer) clearTimeout(pollTimer);
+  pollTimer = null;
+}
 
+function schedulePolling() {
+  stopPolling();
+  pollTimer = setTimeout(() => loadCollectionStatus(currentBatchId), 3000);
+}
+
+function fmtDate(value) {
+  if (!value) return "—";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "—";
   return new Intl.DateTimeFormat("th-TH", {
     dateStyle: "medium",
     timeStyle: "medium",
     timeZone: "Asia/Bangkok"
-  }).format(date);
+  }).format(d);
 }
 
-function statusLabel(status) {
-  return {
+function statusLabel(v) {
+  return ({
     active: "กำลังทำงาน",
     completed: "เสร็จแล้ว",
     completed_with_errors: "เสร็จพร้อมข้อผิดพลาด"
-  }[status] || status || "ยังไม่มี Batch";
-}
-
-function stopPolling() {
-  if (pollTimer) {
-    clearTimeout(pollTimer);
-    pollTimer = null;
-  }
-}
-
-function schedulePolling(delay = 3000) {
-  stopPolling();
-  pollTimer = setTimeout(() => loadCollectionStatus(currentBatchId), delay);
+  })[v] || v || "ยังไม่มี Batch";
 }
 
 async function invokeControl(body) {
-  const { data, error } = await db.functions.invoke(
-    "social-collection-control",
-    { body }
-  );
+  const { data, error } = await db.functions.invoke("social-collection-control", { body });
 
   if (error) {
-    let message = error.message || "ไม่สามารถเรียก Social Collection Control ได้";
+    let message = error.message || "เรียก Social Collection Control ไม่สำเร็จ";
     try {
       if (error.context && typeof error.context.json === "function") {
         const payload = await error.context.json();
@@ -69,21 +63,19 @@ async function invokeControl(body) {
     } catch {}
     throw new Error(message);
   }
-
   return data;
 }
 
-function renderBatchStatus(payload) {
+function renderBatch(payload) {
   const batch = payload?.batch || null;
-  const progress = payload?.progress || {};
-
-  const total = Number(progress.total || 0);
-  const completed = Number(progress.completed || 0);
-  const dispatched = Number(progress.dispatched || 0);
-  const pending = Number(progress.pending || 0);
-  const failed = Number(progress.failed || 0);
+  const p = payload?.progress || {};
+  const total = Number(p.total || 0);
+  const completed = Number(p.completed || 0);
+  const dispatched = Number(p.dispatched || 0);
+  const pending = Number(p.pending || 0);
+  const failed = Number(p.failed || 0);
   const finished = completed + failed;
-  const percent = total > 0 ? Math.min(100, Math.round((finished / total) * 100)) : 0;
+  const percent = total ? Math.min(100, Math.round((finished / total) * 100)) : 0;
 
   currentBatchId = batch?.batch_id || null;
 
@@ -92,27 +84,22 @@ function renderBatchStatus(payload) {
   $("#runningCount").textContent = dispatched;
   $("#pendingCount").textContent = pending;
   $("#failedCount").textContent = failed;
-
   $("#progressLabel").textContent = `${finished} / ${total} Sources`;
   $("#progressPercent").textContent = `${percent}%`;
   $("#progressBar").style.width = `${percent}%`;
   $(".progress-track")?.setAttribute("aria-valuenow", String(percent));
-
   $("#batchId").textContent = batch?.batch_id || "—";
-  $("#batchStarted").textContent = formatDate(batch?.started_at);
-  $("#batchFinished").textContent = formatDate(batch?.finished_at);
+  $("#batchStarted").textContent = fmtDate(batch?.started_at);
+  $("#batchFinished").textContent = fmtDate(batch?.finished_at);
 
   const active = batch?.status === "active";
-  const button = $("#startCollectionBtn");
-
-  button.disabled = active || isStarting;
-  button.textContent = active
-    ? `กำลังดึงข้อมูล... ${finished}/${total}`
-    : "ดึงข้อมูลใหม่";
+  const btn = $("#startCollectionBtn");
+  btn.disabled = active || isStarting;
+  btn.textContent = active ? `กำลังดึงข้อมูล... ${finished}/${total}` : "ดึงข้อมูลใหม่";
 
   if (active) {
     setMessage("กำลังทำงาน ระบบจะอัปเดตสถานะอัตโนมัติ", "info");
-    schedulePolling(3000);
+    schedulePolling();
   } else {
     stopPolling();
     if (batch?.status === "completed") {
@@ -131,67 +118,92 @@ async function loadCollectionStatus(batchId = null) {
       action: "status",
       ...(batchId ? { batch_id: batchId } : {})
     });
-    renderBatchStatus(payload);
-  } catch (error) {
+    renderBatch(payload);
+  } catch (err) {
     stopPolling();
-    setMessage(error.message || "โหลดสถานะไม่สำเร็จ", "error");
+    setMessage(err.message || "โหลดสถานะไม่สำเร็จ", "error");
   }
 }
 
 async function startCollection() {
   if (isStarting) return;
-
   isStarting = true;
-  const button = $("#startCollectionBtn");
-  button.disabled = true;
-  button.textContent = "กำลังสร้าง Batch...";
+  $("#startCollectionBtn").disabled = true;
+  $("#startCollectionBtn").textContent = "กำลังสร้าง Batch...";
   setMessage("กำลังสร้าง Batch ใหม่...", "info");
 
   try {
     const payload = await invokeControl({ action: "start" });
-    renderBatchStatus(payload);
-  } catch (error) {
-    setMessage(error.message || "เริ่มดึงข้อมูลไม่สำเร็จ", "error");
+    renderBatch(payload);
+  } catch (err) {
+    setMessage(err.message || "เริ่มดึงข้อมูลไม่สำเร็จ", "error");
   } finally {
     isStarting = false;
   }
 }
 
-async function boot() {
-  if (cfg.LOGIN_URL) $("#mainLoginLink").href = cfg.LOGIN_URL;
+async function signOut() {
   stopPolling();
+  await db.auth.signOut();
+  location.href = cfg.ADMIN_URL || location.href;
+}
 
-  // จุดสำคัญ: หน้านี้ไม่ Sign in, ไม่ส่ง Magic Link และไม่สร้าง Auth flow ใหม่
-  const { data, error } = await db.auth.getSession();
+async function loginGoogle() {
+  $("#googleLoginBtn").disabled = true;
+  $("#loginMessage").textContent = "กำลังเปิด Google Login...";
+
+  const redirectTo = cfg.ADMIN_URL ||
+    `${location.origin}${cfg.SITE_BASE || "/"}admin.html`;
+
+  const { error } = await db.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo }
+  });
 
   if (error) {
-    $("#sessionNotice").classList.remove("hidden");
-    return;
+    $("#googleLoginBtn").disabled = false;
+    $("#loginMessage").textContent = error.message;
   }
+}
 
-  const session = data?.session;
+async function boot() {
+  stopPolling();
 
-  if (!session) {
-    $("#sessionNotice").classList.remove("hidden");
+  const { data, error } = await db.auth.getSession();
+  const session = data?.session || null;
+
+  if (error || !session) {
+    $("#loginPanel").classList.remove("hidden");
+    $("#forbiddenPanel").classList.add("hidden");
     $("#adminApp").classList.add("hidden");
     $("#userBadge").classList.add("hidden");
     return;
   }
 
-  $("#sessionNotice").classList.add("hidden");
-  $("#userBadge").classList.remove("hidden");
-  $("#userBadge").textContent = session.user?.email || "Admin";
+  const email = (session.user?.email || "").toLowerCase();
+
+  if (!email.endsWith("@spu.ac.th")) {
+    $("#loginPanel").classList.add("hidden");
+    $("#adminApp").classList.add("hidden");
+    $("#forbiddenPanel").classList.remove("hidden");
+    $("#forbiddenMessage").textContent = `บัญชี ${email || "นี้"} ไม่ใช่บัญชี @spu.ac.th`;
+    return;
+  }
+
+  $("#loginPanel").classList.add("hidden");
+  $("#forbiddenPanel").classList.add("hidden");
   $("#adminApp").classList.remove("hidden");
+  $("#userBadge").classList.remove("hidden");
+  $("#userBadge").textContent = email;
 
   await loadCollectionStatus();
 }
 
+$("#googleLoginBtn").addEventListener("click", loginGoogle);
 $("#startCollectionBtn").addEventListener("click", startCollection);
-
-$("#refreshStatusBtn").addEventListener("click", () => {
-  setMessage("กำลังรีเฟรชสถานะ...", "info");
-  loadCollectionStatus(currentBatchId);
-});
+$("#refreshStatusBtn").addEventListener("click", () => loadCollectionStatus(currentBatchId));
+$("#signOutBtn").addEventListener("click", signOut);
+$("#signOutForbiddenBtn").addEventListener("click", signOut);
 
 db.auth.onAuthStateChange((_event, session) => {
   if (!session) stopPolling();

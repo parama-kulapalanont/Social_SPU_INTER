@@ -17,20 +17,19 @@
       <div id="userBadge" class="user-badge hidden"></div>
     </header>
 
-    <section id="sessionNotice" class="panel notice hidden">
-      <h2>ยังไม่ได้เข้าสู่ระบบ</h2>
-      <p>
-        หน้านี้ไม่สร้างระบบ Login ใหม่ และไม่ใช้ Magic Link
-        กรุณาเข้าสู่ระบบผ่านระบบ Login หลักของเว็บไซต์ก่อน แล้วกลับมาหน้านี้อีกครั้ง
-      </p>
-      <a id="mainLoginLink" class="button-link" href="/login.html">ไปหน้า Login หลัก</a>
+    <section id="loginPanel" class="panel notice">
+      <h2>เข้าสู่ระบบผู้ดูแล</h2>
+      <p>ใช้บัญชี Google ของมหาวิทยาลัยที่ได้รับสิทธิ์เท่านั้น</p>
+      <button id="googleLoginBtn" class="primary-action" style="margin-top:16px">
+        เข้าสู่ระบบด้วย Google
+      </button>
+      <div id="loginMessage" class="message"></div>
     </section>
 
     <section id="forbiddenPanel" class="panel notice hidden">
       <h2>ไม่มีสิทธิ์ใช้งาน</h2>
-      <p id="forbiddenMessage">
-        บัญชีนี้เข้าสู่ระบบแล้ว แต่ไม่ได้รับสิทธิ์ควบคุม Social Intelligence
-      </p>
+      <p id="forbiddenMessage">บัญชีนี้ไม่ได้รับสิทธิ์ควบคุม Social Intelligence</p>
+      <button id="signOutForbiddenBtn" class="secondary" style="margin-top:16px">ออกจากระบบ</button>
     </section>
 
     <section id="adminApp" class="hidden">
@@ -39,13 +38,10 @@
           <div>
             <div class="eyebrow">MANUAL COLLECTION</div>
             <h2>ดึงข้อมูลใหม่</h2>
-            <p>
-              กดเมื่อคุณต้องการให้ระบบเริ่มดึงข้อมูลใหม่เท่านั้น
-              ระบบจะเปิด Actor พร้อมกันสูงสุด 2 Source
-            </p>
+            <p>กดเมื่อคุณต้องการเริ่มดึงข้อมูลใหม่ ระบบจะทำงานพร้อมกันสูงสุด 2 Source</p>
           </div>
-
           <div class="collection-actions">
+            <button id="signOutBtn" class="secondary">ออกจากระบบ</button>
             <button id="refreshStatusBtn" class="secondary">รีเฟรชสถานะ</button>
             <button id="startCollectionBtn" class="primary-action">ดึงข้อมูลใหม่</button>
           </div>
@@ -54,26 +50,11 @@
         <div id="statusMessage" class="message"></div>
 
         <div class="batch-summary">
-          <article>
-            <span>สถานะ Batch</span>
-            <strong id="batchStatus">—</strong>
-          </article>
-          <article>
-            <span>เสร็จแล้ว</span>
-            <strong id="completedCount">0</strong>
-          </article>
-          <article>
-            <span>กำลังทำงาน</span>
-            <strong id="runningCount">0</strong>
-          </article>
-          <article>
-            <span>รอคิว</span>
-            <strong id="pendingCount">0</strong>
-          </article>
-          <article>
-            <span>ผิดพลาด</span>
-            <strong id="failedCount">0</strong>
-          </article>
+          <article><span>สถานะ Batch</span><strong id="batchStatus">—</strong></article>
+          <article><span>เสร็จแล้ว</span><strong id="completedCount">0</strong></article>
+          <article><span>กำลังทำงาน</span><strong id="runningCount">0</strong></article>
+          <article><span>รอคิว</span><strong id="pendingCount">0</strong></article>
+          <article><span>ผิดพลาด</span><strong id="failedCount">0</strong></article>
         </div>
 
         <div class="progress-wrap">
@@ -88,22 +69,10 @@
         </div>
 
         <div class="batch-meta-grid">
-          <div>
-            <span>Batch ID</span>
-            <strong id="batchId">—</strong>
-          </div>
-          <div>
-            <span>เริ่ม</span>
-            <strong id="batchStarted">—</strong>
-          </div>
-          <div>
-            <span>เสร็จ</span>
-            <strong id="batchFinished">—</strong>
-          </div>
-          <div>
-            <span>โหมด</span>
-            <strong>Manual</strong>
-          </div>
+          <div><span>Batch ID</span><strong id="batchId">—</strong></div>
+          <div><span>เริ่ม</span><strong id="batchStarted">—</strong></div>
+          <div><span>เสร็จ</span><strong id="batchFinished">—</strong></div>
+          <div><span>โหมด</span><strong>Manual</strong></div>
         </div>
       </section>
     </section>

@@ -10,53 +10,144 @@
   <main class="shell">
     <header class="topbar">
       <div>
-        <div class="eyebrow">ADMIN CONSOLE</div>
-        <h1>Social Data Sources</h1>
-        <p>กำหนดว่าจะดึงอะไร แสดงอะไร และลบแหล่งข้อมูลได้จากหน้านี้</p>
+        <div class="eyebrow">SPU SOCIAL INTELLIGENCE</div>
+        <h1>Social Data Collection</h1>
+        <p>ดึงข้อมูล Facebook และ Instagram แบบกดเอง พร้อมติดตามสถานะ Batch แบบเรียลไทม์</p>
       </div>
-      <button id="signOutBtn" class="secondary hidden">ออกจากระบบ</button>
+
+      <div class="topbar-actions">
+        <div id="userBadge" class="user-badge hidden"></div>
+        <button id="signOutBtn" class="secondary hidden">ออกจากระบบ</button>
+      </div>
     </header>
 
     <section id="loginPanel" class="panel narrow">
       <h2>Admin Login</h2>
-      <p>ใช้บัญชีที่ถูกเพิ่มไว้ในตาราง admins ของ Supabase</p>
+      <p>เข้าสู่ระบบด้วยอีเมล Admin ที่ได้รับสิทธิ์ใช้งาน Social Intelligence</p>
+
       <form id="loginForm" class="login-form">
-        <input id="email" type="email" placeholder="name@spu.ac.th" required>
+        <input
+          id="email"
+          type="email"
+          placeholder="name@spu.ac.th"
+          autocomplete="email"
+          required
+        >
         <button type="submit">ส่ง Magic Link</button>
       </form>
+
       <div id="loginMessage" class="message"></div>
     </section>
 
+    <section id="forbiddenPanel" class="panel narrow hidden">
+      <h2>ไม่มีสิทธิ์ใช้งาน</h2>
+      <p id="forbiddenMessage">
+        บัญชีนี้เข้าสู่ระบบแล้ว แต่ไม่ได้รับสิทธิ์ควบคุม Social Intelligence
+      </p>
+    </section>
+
     <div id="adminApp" class="hidden">
-      <section class="panel">
-        <div class="panel-head">
+      <section class="panel collection-hero">
+        <div class="collection-head">
           <div>
-            <h2>Add Source</h2>
-            <p>เพิ่ม Page / Profile / Channel ที่ต้องการติดตาม</p>
+            <div class="eyebrow">MANUAL COLLECTION</div>
+            <h2>ดึงข้อมูลใหม่</h2>
+            <p>
+              ระบบจะสร้าง Batch ใหม่เมื่อกดปุ่ม และ Worker จะเปิดพร้อมกันสูงสุด 2 Source
+              เพื่อไม่ให้ชน Memory Limit ของ Apify
+            </p>
+          </div>
+
+          <div class="collection-actions">
+            <button id="refreshStatusBtn" class="secondary">รีเฟรชสถานะ</button>
+            <button id="startCollectionBtn" class="primary-action">ดึงข้อมูลใหม่</button>
           </div>
         </div>
 
-        <form id="addForm" class="source-form">
-          <select id="platform" required>
-            <option value="facebook">Facebook</option>
-            <option value="instagram">Instagram</option>
-            <option value="tiktok">TikTok</option>
-          </select>
-          <input id="label" placeholder="ชื่อแหล่งข้อมูล" required>
-          <input id="sourceUrl" type="url" placeholder="URL" required>
-          <input id="postLimit" type="number" min="1" max="100" value="20">
-          <button type="submit">เพิ่มแหล่งข้อมูล</button>
-        </form>
+        <div id="statusMessage" class="message"></div>
+
+        <div class="batch-summary">
+          <article>
+            <span>สถานะ Batch</span>
+            <strong id="batchStatus">—</strong>
+          </article>
+
+          <article>
+            <span>เสร็จแล้ว</span>
+            <strong id="completedCount">0</strong>
+          </article>
+
+          <article>
+            <span>กำลังทำงาน</span>
+            <strong id="runningCount">0</strong>
+          </article>
+
+          <article>
+            <span>รอคิว</span>
+            <strong id="pendingCount">0</strong>
+          </article>
+
+          <article>
+            <span>ผิดพลาด</span>
+            <strong id="failedCount">0</strong>
+          </article>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-meta">
+            <span id="progressLabel">0 / 0 Sources</span>
+            <span id="progressPercent">0%</span>
+          </div>
+
+          <div
+            class="progress-track"
+            role="progressbar"
+            aria-label="Collection progress"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+          >
+            <div id="progressBar" class="progress-bar"></div>
+          </div>
+        </div>
+
+        <div class="batch-meta-grid">
+          <div>
+            <span>Batch ID</span>
+            <strong id="batchId">—</strong>
+          </div>
+
+          <div>
+            <span>เริ่ม</span>
+            <strong id="batchStarted">—</strong>
+          </div>
+
+          <div>
+            <span>เสร็จ</span>
+            <strong id="batchFinished">—</strong>
+          </div>
+
+          <div>
+            <span>โหมด</span>
+            <strong>Manual</strong>
+          </div>
+        </div>
       </section>
 
       <section class="panel">
         <div class="panel-head">
           <div>
-            <h2>Source Control</h2>
-            <p>ปรับเปิด/ปิด metric และสั่งดึงข้อมูลได้ทีละแหล่ง</p>
+            <h2>วิธีทำงาน</h2>
+            <p>ระบบจะไม่เริ่ม Batch ใหม่เองจนกว่า Admin จะกดปุ่ม</p>
           </div>
         </div>
-        <div id="sourceList" class="source-list"></div>
+
+        <div class="flow-grid">
+          <div><b>1</b><span>Admin กดดึงข้อมูลใหม่</span></div>
+          <div><b>2</b><span>สร้าง Batch จาก Source ที่ Active</span></div>
+          <div><b>3</b><span>Worker รันพร้อมกันสูงสุด 2 Source</span></div>
+          <div><b>4</b><span>เก็บโพสต์ใหม่ + Metrics History</span></div>
+        </div>
       </section>
     </div>
   </main>

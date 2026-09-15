@@ -1,180 +1,292 @@
 const cfg = window.SPU_SOCIAL_CONFIG || {};
-const db = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
 
-const $ = s => document.querySelector(s);
-const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({
-  "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
-}[c]));
+if (!cfg.SUPABASE_URL || !cfg.SUPABASE_PUBLISHABLE_KEY) {
+  throw new Error("Missing Supabase configuration in config.js");
+}
+
+const db = window.supabase.createClient(
+  cfg.SUPABASE_URL,
+  cfg.SUPABASE_PUBLISHABLE_KEY
+);
+
+const $ = (selector) => document.querySelector(selector);
+
+let pollTimer = null;
+let currentBatchId = null;
+let isStarting = false;
+
+function setMessage(message = "", type = "") {
+  const el = $("#statusMessage");
+  el.textContent = message;
+  el.className = `message ${type}`.trim();
+}
+
+function formatDate(value) {
+  if (!value) return "—";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return String(value);
+  }
+
+  return new Intl.DateTimeFormat("th-TH", {
+    dateStyle: "medium",
+    timeStyle: "medium",
+    timeZone: "Asia/Bangkok"
+  }).format(date);
+}
+
+function statusLabel(status) {
+  const labels = {
+    active: "กำลังทำงาน",
+    completed: "เสร็จแล้ว",
+    completed_with_errors: "เสร็จพร้อมข้อผิดพลาด"
+  };
+
+  return labels[status] || status || "ยังไม่มี Batch";
+}
+
+function stopPolling() {
+  if (pollTimer) {
+    clearTimeout(pollTimer);
+    pollTimer = null;
+  }
+}
+
+function schedulePolling(delay = 3000) {
+  stopPolling();
+
+  pollTimer = setTimeout(async () => {
+    await loadCollectionStatus(currentBatchId);
+  }, delay);
+}
 
 async function currentSession() {
-  const { data } = await db.auth.getSession();
+  const { data, error } = await db.auth.getSession();
+
+  if (error) {
+    throw error;
+  }
+
   return data.session;
 }
 
-async function isAdmin(session) {
-  if (!session?.user?.email) return false;
-  const { data, error } = await db
-    .from("admins")
-    .select("email")
-    .eq("email", session.user.email)
-    .maybeSingle();
-  return !error && !!data;
+async function invokeControl(body) {
+  const { data, error } = await db.functions.invoke(
+    "social-collection-control",
+    { body }
+  );
+
+  if (error) {
+    let message = error.message || "ไม่สามารถเรียก Social Collection Control ได้";
+
+    try {
+      const context = error.context;
+
+      if (context && typeof context.json === "function") {
+        const payload = await context.json();
+
+        if (payload?.message) message = payload.message;
+        else if (payload?.error) message = payload.error;
+      }
+    } catch {
+      // ใช้ข้อความ error เดิม
+    }
+
+    const wrapped = new Error(message);
+    wrapped.original = error;
+    throw wrapped;
+  }
+
+  return data;
+}
+
+function renderBatchStatus(payload) {
+  const batch = payload?.batch || null;
+  const progress = payload?.progress || {};
+
+  const total = Number(progress.total || 0);
+  const completed = Number(progress.completed || 0);
+  const dispatched = Number(progress.dispatched || 0);
+  const pending = Number(progress.pending || 0);
+  const failed = Number(progress.failed || 0);
+
+  const finished = completed + failed;
+  const percent = total > 0
+    ? Math.min(100, Math.round((finished / total) * 100))
+    : 0;
+
+  currentBatchId = batch?.batch_id || null;
+
+  $("#batchStatus").textContent = statusLabel(batch?.status);
+  $("#completedCount").textContent = completed;
+  $("#runningCount").textContent = dispatched;
+  $("#pendingCount").textContent = pending;
+  $("#failedCount").textContent = failed;
+
+  $("#progressLabel").textContent = `${finished} / ${total} Sources`;
+  $("#progressPercent").textContent = `${percent}%`;
+  $("#progressBar").style.width = `${percent}%`;
+
+  const progressTrack = $(".progress-track");
+  progressTrack?.setAttribute("aria-valuenow", String(percent));
+
+  $("#batchId").textContent = batch?.batch_id || "—";
+  $("#batchStarted").textContent = formatDate(batch?.started_at);
+  $("#batchFinished").textContent = formatDate(batch?.finished_at);
+
+  const active = batch?.status === "active";
+  const button = $("#startCollectionBtn");
+
+  button.disabled = active || isStarting;
+  button.textContent = active
+    ? `กำลังดึงข้อมูล... ${finished}/${total}`
+    : "ดึงข้อมูลใหม่";
+
+  if (active) {
+    setMessage("กำลังทำงาน ระบบจะอัปเดตสถานะอัตโนมัติ", "info");
+    schedulePolling(3000);
+  } else {
+    stopPolling();
+
+    if (batch?.status === "completed") {
+      setMessage(`Batch ล่าสุดเสร็จครบ ${completed}/${total} Sources`, "success");
+    } else if (batch?.status === "completed_with_errors") {
+      setMessage(`Batch จบแล้ว แต่มี ${failed} Source ที่ผิดพลาด`, "error");
+    } else if (!batch) {
+      setMessage("ยังไม่มี Batch ล่าสุด กด “ดึงข้อมูลใหม่” เพื่อเริ่ม", "info");
+    }
+  }
+}
+
+async function loadCollectionStatus(batchId = null) {
+  try {
+    const payload = await invokeControl({
+      action: "status",
+      ...(batchId ? { batch_id: batchId } : {})
+    });
+
+    renderBatchStatus(payload);
+
+    return payload;
+  } catch (error) {
+    stopPolling();
+
+    const message = error.message || "โหลดสถานะไม่สำเร็จ";
+
+    if (/forbidden|not allowed|ไม่มีสิทธิ์/i.test(message)) {
+      $("#adminApp").classList.add("hidden");
+      $("#forbiddenPanel").classList.remove("hidden");
+      $("#forbiddenMessage").textContent = message;
+      return null;
+    }
+
+    setMessage(message, "error");
+    throw error;
+  }
+}
+
+async function startCollection() {
+  if (isStarting) return;
+
+  isStarting = true;
+
+  const button = $("#startCollectionBtn");
+  button.disabled = true;
+  button.textContent = "กำลังสร้าง Batch...";
+  setMessage("กำลังสร้าง Batch ใหม่...", "info");
+
+  try {
+    const payload = await invokeControl({
+      action: "start"
+    });
+
+    renderBatchStatus(payload);
+  } catch (error) {
+    setMessage(error.message || "เริ่มดึงข้อมูลไม่สำเร็จ", "error");
+  } finally {
+    isStarting = false;
+
+    if ($("#batchStatus").textContent !== "กำลังทำงาน") {
+      button.disabled = false;
+      button.textContent = "ดึงข้อมูลใหม่";
+    }
+  }
 }
 
 async function refreshAuthUI() {
+  stopPolling();
+
   const session = await currentSession();
-  const admin = await isAdmin(session);
 
-  $("#loginPanel").classList.toggle("hidden", admin);
-  $("#adminApp").classList.toggle("hidden", !admin);
-  $("#signOutBtn").classList.toggle("hidden", !session);
+  const loggedIn = !!session;
 
-  if (admin) await loadSources();
+  $("#loginPanel").classList.toggle("hidden", loggedIn);
+  $("#signOutBtn").classList.toggle("hidden", !loggedIn);
+  $("#userBadge").classList.toggle("hidden", !loggedIn);
+
+  if (!loggedIn) {
+    $("#adminApp").classList.add("hidden");
+    $("#forbiddenPanel").classList.add("hidden");
+    $("#userBadge").textContent = "";
+    return;
+  }
+
+  $("#userBadge").textContent = session.user?.email || "Signed in";
+  $("#forbiddenPanel").classList.add("hidden");
+  $("#adminApp").classList.remove("hidden");
+
+  try {
+    await loadCollectionStatus();
+  } catch {
+    // UI แสดง error อยู่แล้ว
+  }
 }
 
-$("#loginForm").addEventListener("submit", async e => {
-  e.preventDefault();
+$("#loginForm").addEventListener("submit", async (event) => {
+  event.preventDefault();
+
   const email = $("#email").value.trim();
+
+  $("#loginMessage").textContent = "กำลังส่งลิงก์เข้าสู่ระบบ...";
+
   const { error } = await db.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: location.href }
+    options: {
+      emailRedirectTo: `${location.origin}${location.pathname}`
+    }
   });
+
   $("#loginMessage").textContent = error
     ? error.message
-    : "ส่งลิงก์เข้าสู่ระบบแล้ว กรุณาตรวจสอบอีเมล";
+    : "ส่ง Magic Link แล้ว กรุณาตรวจสอบอีเมล";
 });
 
 $("#signOutBtn").addEventListener("click", async () => {
+  stopPolling();
   await db.auth.signOut();
   location.reload();
 });
 
-$("#addForm").addEventListener("submit", async e => {
-  e.preventDefault();
+$("#startCollectionBtn").addEventListener("click", startCollection);
 
-  const payload = {
-    platform: $("#platform").value,
-    label: $("#label").value.trim(),
-    source_url: $("#sourceUrl").value.trim(),
-    post_limit: Number($("#postLimit").value || 20),
-    enabled: true,
-    collect_caption: true,
-    collect_views: true,
-    collect_likes: true,
-    collect_comments: true,
-    collect_shares: true
-  };
-
-  const { error } = await db.from("social_sources").insert(payload);
-  if (error) return alert(error.message);
-
-  e.target.reset();
-  $("#postLimit").value = 20;
-  await loadSources();
-});
-
-async function updateSource(id, patch) {
-  const { error } = await db.from("social_sources").update(patch).eq("id", id);
-  if (error) alert(error.message);
-  else loadSources();
-}
-
-async function deleteSource(id, label) {
-  if (!confirm(`ลบ ${label} และข้อมูลโพสต์ทั้งหมดของแหล่งนี้?`)) return;
-  const { error } = await db.from("social_sources").delete().eq("id", id);
-  if (error) alert(error.message);
-  else loadSources();
-}
-
-async function runSource(id, button) {
-  const session = await currentSession();
-  button.disabled = true;
-  button.textContent = "กำลังดึง...";
+$("#refreshStatusBtn").addEventListener("click", async () => {
+  setMessage("กำลังรีเฟรชสถานะ...", "info");
 
   try {
-    const res = await fetch(cfg.EDGE_FUNCTION_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${session.access_token}`,
-        "apikey": cfg.SUPABASE_ANON_KEY
-      },
-      body: JSON.stringify({ source_id: id })
-    });
-
-    const out = await res.json();
-    if (!res.ok) throw new Error(out.error || "Collect failed");
-    alert(`ดึงข้อมูลสำเร็จ ${out.count} รายการ`);
-  } catch (err) {
-    alert(err.message);
-  } finally {
-    button.disabled = false;
-    button.textContent = "Run now";
+    await loadCollectionStatus(currentBatchId);
+  } catch {
+    // UI แสดง error อยู่แล้ว
   }
-}
+});
 
-async function loadSources() {
-  const { data, error } = await db
-    .from("social_sources")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    $("#sourceList").innerHTML = `<div class="empty">${esc(error.message)}</div>`;
-    return;
+db.auth.onAuthStateChange((_event, session) => {
+  if (!session) {
+    stopPolling();
   }
 
-  $("#sourceList").innerHTML = (data || []).map(s => `
-    <article class="source-card" data-id="${s.id}">
-      <div class="source-main">
-        <div>
-          <div class="source-title">${esc(s.label)}</div>
-          <div class="source-meta">${esc(s.platform.toUpperCase())} · ${esc(s.source_url)}</div>
-        </div>
-        <label class="switch-line">
-          <input type="checkbox" ${s.enabled ? "checked" : ""} data-action="enabled">
-          <span>Active</span>
-        </label>
-      </div>
+  refreshAuthUI();
+});
 
-      <div class="metric-controls">
-        <label><input type="checkbox" ${s.collect_caption ? "checked" : ""} data-action="collect_caption"> Caption</label>
-        <label><input type="checkbox" ${s.collect_views ? "checked" : ""} data-action="collect_views"> Views</label>
-        <label><input type="checkbox" ${s.collect_likes ? "checked" : ""} data-action="collect_likes"> Likes</label>
-        <label><input type="checkbox" ${s.collect_comments ? "checked" : ""} data-action="collect_comments"> Comments</label>
-        <label><input type="checkbox" ${s.collect_shares ? "checked" : ""} data-action="collect_shares"> Shares</label>
-
-        <label class="limit-label">
-          Posts
-          <input type="number" min="1" max="100" value="${s.post_limit}" data-action="post_limit">
-        </label>
-      </div>
-
-      <div class="source-actions">
-        <button data-run="${s.id}">Run now</button>
-        <button class="danger" data-delete="${s.id}" data-label="${esc(s.label)}">Delete</button>
-      </div>
-    </article>
-  `).join("") || `<div class="empty">ยังไม่มีแหล่งข้อมูล</div>`;
-
-  document.querySelectorAll("[data-action]").forEach(el => {
-    el.addEventListener("change", async () => {
-      const card = el.closest(".source-card");
-      const id = card.dataset.id;
-      const field = el.dataset.action;
-      const value = el.type === "checkbox" ? el.checked : Number(el.value);
-      await updateSource(id, { [field]: value });
-    });
-  });
-
-  document.querySelectorAll("[data-run]").forEach(btn => {
-    btn.addEventListener("click", () => runSource(btn.dataset.run, btn));
-  });
-
-  document.querySelectorAll("[data-delete]").forEach(btn => {
-    btn.addEventListener("click", () => deleteSource(btn.dataset.delete, btn.dataset.label));
-  });
-}
-
-db.auth.onAuthStateChange(() => refreshAuthUI());
 refreshAuthUI();

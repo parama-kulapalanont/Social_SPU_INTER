@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Institution Key Insights</title>
+<link rel="stylesheet" href="dashboard-v2.css?v=1">
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="spu"><span>SPU</span> |</div><div class="sub">SOCIAL<br>INTELLIGENCE</div></div>
+  <nav class="nav"><a href="index.html" class=""><span class="ico">▥</span>Dashboard</a><a href="benchmark.html" class=""><span class="ico">⇄</span>SPU Benchmark</a><a href="institutions.html" class="active"><span class="ico">⌂</span>Institution Insights</a></nav>
+  <div class="sidebar-bottom"><b>Turning Social Data into Greater Impact</b><br><br>SRIPATUM UNIVERSITY</div>
+</aside>
+<main class="main">
+<div class="topbar"><div><div class="eyebrow">INSTITUTION INTELLIGENCE</div><h1>Institution Key Insights</h1><p class="subtitle">Distinctive performance profile for each monitored institution.</p></div><div class="updated" id="lastUpdated">Updated —</div></div>
+
+<div class="filters">
+  <div class="filter"><label>Time Period</label><select><option>All collected data</option></select></div>
+  <div class="filter"><label>Platform</label><select><option>Facebook + Instagram</option></select></div>
+  <div class="filter"><label>Comparison Set</label><select><option>All institutions</option></select></div>
+</div>
+<section class="grid kpis">
+ <div class="card kpi"><div class="icon">⌂</div><div><div class="label">Institutions</div><div class="value" id="instCount">0</div></div></div>
+ <div class="card kpi"><div class="icon">▤</div><div><div class="label">Total Posts</div><div class="value" id="totalPosts">0</div></div></div>
+ <div class="card kpi"><div class="icon">♥</div><div><div class="label">Total Likes</div><div class="value" id="totalLikes">0</div></div></div>
+ <div class="card kpi"><div class="icon">◌</div><div><div class="label">Total Comments</div><div class="value" id="totalComments">0</div></div></div>
+ <div class="card kpi"><div class="icon">⌘</div><div><div class="label">Active Sources</div><div class="value" id="sourceCount">13</div></div></div>
+</section>
+<div class="section-title"><div><h2>Institution Insights</h2><p>SPU is featured; each peer gets its own profile card.</p></div></div>
+<section class="grid profile-grid" id="profiles"></section>
+<section class="grid three-col" style="margin-top:14px">
+ <div class="card"><h3>Performance Comparison Matrix</h3><div class="table-wrap"><table><thead><tr><th>Institution</th><th>Posts</th><th>Likes</th><th>Comments</th><th>Interactions</th><th>Int./Post</th></tr></thead><tbody id="heatmap"></tbody></table></div></div>
+ <div class="card"><h3>Key Takeaways by Institution</h3><div class="rank-list" id="takeaways"></div></div>
+ <div class="card"><h3>High-Intensity Signals</h3><p class="subtitle">Ranked by measured interactions per post.</p><div class="rank-list" id="signals"></div></div>
+</section>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="config.js?v=20260915-2"></script>
+<script src="dashboard-data.js?v=1"></script>
+<script src="institutions.js?v=1"></script>
+</body></html>

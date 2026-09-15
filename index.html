@@ -1,67 +1,49 @@
 <!doctype html>
 <html lang="th">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>SPU Social Intelligence Dashboard</title>
-  <link rel="stylesheet" href="styles.css">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SPU Strategic Benchmark & Institution Insights</title>
+<link rel="stylesheet" href="dashboard-v2.css?v=1">
 </head>
 <body>
-  <main class="shell">
-    <header class="topbar">
-      <div>
-        <div class="eyebrow">SPU SOCIAL INTELLIGENCE</div>
-        <h1>Social Performance Dashboard</h1>
-        <p>ภาพรวมข้อมูลจากช่องทางที่ผู้ดูแลระบบอนุญาตให้แสดงผล</p>
-      </div>
-      <div id="lastUpdate" class="status">กำลังโหลด...</div>
-    </header>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="spu"><span>SPU</span> |</div><div class="sub">SOCIAL<br>INTELLIGENCE</div></div>
+  <nav class="nav"><a href="index.html" class="active"><span class="ico">▥</span>Dashboard</a><a href="benchmark.html" class=""><span class="ico">⇄</span>SPU Benchmark</a><a href="institutions.html" class=""><span class="ico">⌂</span>Institution Insights</a></nav>
+  <div class="sidebar-bottom"><b>Turning Social Data into Greater Impact</b><br><br>SRIPATUM UNIVERSITY</div>
+</aside>
+<main class="main">
+<div class="topbar"><div><div class="eyebrow">DATA · INSIGHT · IMPACT</div><h1>SPU Strategic Benchmark & Institution Insights</h1><p class="subtitle">SPU-first executive view with peer comparison and institution profiles.</p></div><div class="updated" id="lastUpdated">Updated —</div></div>
 
-    <section class="cards">
-      <article><span>Posts</span><strong id="kpiPosts">0</strong></article>
-      <article><span>Views</span><strong id="kpiViews">0</strong></article>
-      <article><span>Likes</span><strong id="kpiLikes">0</strong></article>
-      <article><span>Comments</span><strong id="kpiComments">0</strong></article>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <div>
-          <h2>Performance by Platform</h2>
-          <p>แสดงเฉพาะข้อมูลที่ถูกเปิดใช้งานจากหลังบ้าน</p>
-        </div>
-      </div>
-      <div id="platformCards" class="platform-grid"></div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <div>
-          <h2>Latest Posts</h2>
-          <p>โพสต์ล่าสุดจากทุกแหล่งข้อมูลที่เปิดใช้งาน</p>
-        </div>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Platform</th>
-              <th>Source</th>
-              <th>Caption</th>
-              <th>Views</th>
-              <th>Likes</th>
-              <th>Comments</th>
-              <th>Shares</th>
-            </tr>
-          </thead>
-          <tbody id="postRows"></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
-
+<div class="filters">
+  <div class="filter"><label>Time Period</label><select><option>All collected data</option></select></div>
+  <div class="filter"><label>Platform</label><select><option>Facebook + Instagram</option></select></div>
+  <div class="filter"><label>Comparison Set</label><select><option>All institutions</option></select></div>
+</div>
+<div class="section-title"><div><h2>SPU Benchmark Snapshot</h2><p>SPU performance first, then compare with peer patterns.</p></div></div>
+<section class="grid kpis">
+ <div class="card kpi"><div class="icon">▤</div><div><div class="label">SPU Posts</div><div class="value" id="kpiPosts">0</div></div></div>
+ <div class="card kpi"><div class="icon">◉</div><div><div class="label">SPU Views</div><div class="value" id="kpiViews">0</div></div></div>
+ <div class="card kpi"><div class="icon">♥</div><div><div class="label">SPU Likes</div><div class="value" id="kpiLikes">0</div></div></div>
+ <div class="card kpi"><div class="icon">◌</div><div><div class="label">SPU Comments</div><div class="value" id="kpiComments">0</div></div></div>
+ <div class="card kpi"><div class="icon">⇄</div><div><div class="label">SPU vs peer avg.</div><div class="value" id="peerDelta">0%</div><div class="hint">Interactions per post</div></div></div>
+</section>
+<div class="section-title"><div><h2>SPU vs Others</h2><p>Comparison using metrics actually available in collected posts.</p></div></div>
+<section class="grid two-col">
+ <div class="card chart-card"><h3>Total Posts by Institution</h3><div class="canvas-wrap"><canvas id="postsChart"></canvas></div></div>
+ <div class="card chart-card"><h3>Interaction Comparison</h3><div class="canvas-wrap"><canvas id="interactionsChart"></canvas></div></div>
+</section>
+<div class="section-title" style="margin-top:14px"><div><h2>Institution Insight Profiles</h2><p>At-a-glance profile for every monitored institution.</p></div></div>
+<section class="grid profile-grid" id="profiles"></section>
+<div class="section-title" style="margin-top:14px"><div><h2>Executive Takeaways</h2><p>Calculated from current data; no invented engagement-rate assumptions.</p></div></div>
+<section class="insights" id="takeaways"></section>
+<div class="section-title" style="margin-top:14px"><div><h2>Top Performing Content</h2><p>Highest measured likes + comments + shares.</p></div></div>
+<section class="posts" id="topPosts"></section>
+</main>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=20260915-1"></script>
-<script src="dashboard.js?v=20260915-1"></script>
-</body>
-</html>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="config.js?v=20260915-2"></script>
+<script src="dashboard-data.js?v=1"></script>
+<script src="overview.js?v=1"></script>
+</body></html>

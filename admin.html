@@ -5,91 +5,196 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>SPU Social Intelligence Admin</title>
   <link rel="stylesheet" href="styles.css">
+
+  <style>
+    .login-box {
+      max-width: 460px;
+      margin: 40px auto;
+    }
+
+    .login-form {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .login-form input {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      padding: 0 14px;
+      font-size: 15px;
+    }
+  </style>
 </head>
+
 <body>
   <main class="shell">
+
     <header class="topbar">
       <div>
         <div class="eyebrow">SPU SOCIAL INTELLIGENCE</div>
         <h1>Social Data Collection</h1>
-        <p>Admin สำหรับควบคุมการดึงข้อมูล Facebook และ Instagram</p>
+        <p>ระบบจัดการการดึงข้อมูล Facebook และ Instagram</p>
       </div>
+
       <div id="userBadge" class="user-badge hidden"></div>
     </header>
 
-    <section id="configError" class="panel notice hidden">
-      <h2>ยังไม่ได้ตั้งค่า Supabase</h2>
-      <p>
-        กรุณาใส่ Project URL และ Publishable Key ของ Supabase Project
-        ที่ใช้เก็บ Social Intelligence ในไฟล์ config.js ก่อน
-      </p>
-    </section>
+    <!-- LOGIN -->
+    <section id="loginPanel" class="panel login-box hidden">
+      <h2>Admin Login</h2>
+      <p>เข้าสู่ระบบด้วยบัญชีที่กำหนดใน Supabase</p>
 
-    <section id="loginPanel" class="panel notice hidden">
-      <h2>เข้าสู่ระบบผู้ดูแล</h2>
-      <p>ยืนยันตัวตนผ่าน Supabase Auth ของ Social Intelligence Project</p>
-      <button id="googleLoginBtn" class="primary-action" style="margin-top:16px">
-        เข้าสู่ระบบด้วย Google
-      </button>
+      <form id="loginForm" class="login-form">
+        <input
+          id="email"
+          type="email"
+          placeholder="Email"
+          autocomplete="email"
+          required
+        >
+
+        <input
+          id="password"
+          type="password"
+          placeholder="Password"
+          autocomplete="current-password"
+          required
+        >
+
+        <button type="submit" class="primary-action">
+          เข้าสู่ระบบ
+        </button>
+      </form>
+
       <div id="loginMessage" class="message"></div>
     </section>
 
-    <section id="forbiddenPanel" class="panel notice hidden">
+    <!-- NO ADMIN PERMISSION -->
+    <section id="forbiddenPanel" class="panel login-box hidden">
       <h2>ไม่มีสิทธิ์ใช้งาน</h2>
-      <p id="forbiddenMessage">บัญชีนี้ไม่ได้รับสิทธิ์ควบคุม Social Intelligence</p>
-      <button id="signOutForbiddenBtn" class="secondary" style="margin-top:16px">
+      <p id="forbiddenMessage"></p>
+
+      <button id="forbiddenLogoutBtn" class="secondary" style="margin-top:16px">
         ออกจากระบบ
       </button>
     </section>
 
+    <!-- ADMIN -->
     <section id="adminApp" class="hidden">
+
       <section class="panel collection-hero">
+
         <div class="collection-head">
           <div>
             <div class="eyebrow">MANUAL COLLECTION</div>
             <h2>ดึงข้อมูลใหม่</h2>
-            <p>ระบบจะสร้าง Batch ใหม่และทำงานพร้อมกันสูงสุด 2 Source</p>
+
+            <p>
+              ระบบจะดึงข้อมูลจาก Source ที่เปิดใช้งาน
+              และทำงานพร้อมกันสูงสุด 2 Source
+            </p>
           </div>
+
           <div class="collection-actions">
-            <button id="signOutBtn" class="secondary">ออกจากระบบ</button>
-            <button id="refreshStatusBtn" class="secondary">รีเฟรชสถานะ</button>
-            <button id="startCollectionBtn" class="primary-action">ดึงข้อมูลใหม่</button>
+            <button id="logoutBtn" class="secondary">
+              ออกจากระบบ
+            </button>
+
+            <button id="refreshStatusBtn" class="secondary">
+              รีเฟรชสถานะ
+            </button>
+
+            <button id="startCollectionBtn" class="primary-action">
+              ดึงข้อมูลใหม่
+            </button>
           </div>
         </div>
 
         <div id="statusMessage" class="message"></div>
 
         <div class="batch-summary">
-          <article><span>สถานะ Batch</span><strong id="batchStatus">—</strong></article>
-          <article><span>เสร็จแล้ว</span><strong id="completedCount">0</strong></article>
-          <article><span>กำลังทำงาน</span><strong id="runningCount">0</strong></article>
-          <article><span>รอคิว</span><strong id="pendingCount">0</strong></article>
-          <article><span>ผิดพลาด</span><strong id="failedCount">0</strong></article>
+
+          <article>
+            <span>สถานะ Batch</span>
+            <strong id="batchStatus">—</strong>
+          </article>
+
+          <article>
+            <span>เสร็จแล้ว</span>
+            <strong id="completedCount">0</strong>
+          </article>
+
+          <article>
+            <span>กำลังทำงาน</span>
+            <strong id="runningCount">0</strong>
+          </article>
+
+          <article>
+            <span>รอคิว</span>
+            <strong id="pendingCount">0</strong>
+          </article>
+
+          <article>
+            <span>ผิดพลาด</span>
+            <strong id="failedCount">0</strong>
+          </article>
+
         </div>
 
         <div class="progress-wrap">
+
           <div class="progress-meta">
             <span id="progressLabel">0 / 0 Sources</span>
             <span id="progressPercent">0%</span>
           </div>
-          <div class="progress-track" role="progressbar"
-               aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+
+          <div
+            class="progress-track"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+          >
             <div id="progressBar" class="progress-bar"></div>
           </div>
+
         </div>
 
         <div class="batch-meta-grid">
-          <div><span>Batch ID</span><strong id="batchId">—</strong></div>
-          <div><span>เริ่ม</span><strong id="batchStarted">—</strong></div>
-          <div><span>เสร็จ</span><strong id="batchFinished">—</strong></div>
-          <div><span>โหมด</span><strong>Manual</strong></div>
+
+          <div>
+            <span>Batch ID</span>
+            <strong id="batchId">—</strong>
+          </div>
+
+          <div>
+            <span>เริ่ม</span>
+            <strong id="batchStarted">—</strong>
+          </div>
+
+          <div>
+            <span>เสร็จ</span>
+            <strong id="batchFinished">—</strong>
+          </div>
+
+          <div>
+            <span>โหมด</span>
+            <strong>Manual</strong>
+          </div>
+
         </div>
+
       </section>
+
     </section>
+
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
   <script src="admin.js"></script>
+
 </body>
 </html>

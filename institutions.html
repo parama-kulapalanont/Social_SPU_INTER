@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Insight รายสถาบัน</title>
-<link rel="stylesheet" href="dashboard-v2.css?v=3">
+<link rel="stylesheet" href="dashboard-v2.css?v=4">
+<link rel="stylesheet" href="ai-chat.css?v=1">
 </head>
-<body>
+<body data-ai-page="institutions">
 <div class="app">
 <aside class="sidebar">
   <div class="brand"><div class="spu"><span>SPU</span> |</div><div class="sub">SOCIAL<br>INTELLIGENCE</div></div>
@@ -18,6 +19,11 @@
     <div class="updated" id="lastUpdated">กำลังโหลด...</div>
   </div>
   
+<div class="ai-focus-bar" id="aiFocusBar" hidden>
+  <div><strong>AI Focus</strong><span id="aiFocusText">กำลังโฟกัสข้อมูลที่ AI แนะนำ</span></div>
+  <button type="button" id="aiFocusClose">ปิด Highlight ×</button>
+</div>
+
 <div class="filters">
   <div class="filter">
     <label>ช่วงเวลา</label>
@@ -29,21 +35,21 @@
   </div>
   <div class="filter"><label>สถาบัน</label><div id="institutionFilterHost"></div></div>
 </div>
-<div class="filter-summary" id="filterSummary">กำลังโหลดข้อมูล...</div>
+<div class="filter-summary" id="filterSummary" data-ai-target="coverage_notice">กำลังโหลดข้อมูล...</div>
   
 <section class="grid kpis">
  <div class="card kpi"><div class="icon">⌂</div><div><div class="label">สถาบัน</div><div class="value" id="instCount">0</div></div></div>
- <div class="card kpi"><div class="icon">▤</div><div><div class="label">Total Posts</div><div class="value" id="totalPosts">0</div></div></div>
- <div class="card kpi"><div class="icon">♥</div><div><div class="label">Total Likes</div><div class="value" id="totalLikes">0</div></div></div>
- <div class="card kpi"><div class="icon">◌</div><div><div class="label">Total Comments</div><div class="value" id="totalComments">0</div></div></div>
+ <div class="card kpi" data-ai-target="kpi_posts"><div class="icon">▤</div><div><div class="label">Total Posts</div><div class="value" id="totalPosts">0</div></div></div>
+ <div class="card kpi" data-ai-target="kpi_likes"><div class="icon">♥</div><div><div class="label">Total Likes</div><div class="value" id="totalLikes">0</div></div></div>
+ <div class="card kpi" data-ai-target="kpi_comments"><div class="icon">◌</div><div><div class="label">Total Comments</div><div class="value" id="totalComments">0</div></div></div>
  <div class="card kpi"><div class="icon">⌘</div><div><div class="label">ช่องทางที่มีข้อมูล</div><div class="value" id="sourceCount">0</div><div class="hint">นับจากสถาบัน × Platform ในข้อมูลที่เลือก</div></div></div>
 </section>
 <div class="section-title"><div><h2>Insight รายสถาบัน</h2><p>เลือกสถาบันจาก Filter เพื่อดูเฉพาะสถาบันนั้นได้</p></div></div>
-<section class="grid profile-grid" id="profiles"></section>
+<section class="grid profile-grid" id="profiles" data-ai-target="institution_cards"></section>
 <section class="grid three-col" style="margin-top:14px">
- <div class="card"><h3>ตารางเปรียบเทียบ Performance</h3><div class="table-wrap"><table><thead><tr><th>สถาบัน</th><th>Posts</th><th>Likes</th><th>Comments</th><th>Interactions</th><th>Int./Post</th></tr></thead><tbody id="heatmap"></tbody></table></div></div>
- <div class="card"><h3>Key Takeaways รายสถาบัน</h3><div class="rank-list" id="takeaways"></div></div>
- <div class="card"><h3>สัญญาณที่ควรติดตาม</h3><p class="subtitle">เรียงจาก Interactions ต่อ Post ที่วัดได้</p><div class="rank-list" id="signals"></div></div>
+ <div class="card" data-ai-target="comparison_chart"><h3>ตารางเปรียบเทียบ Performance</h3><div class="table-wrap"><table><thead><tr><th>สถาบัน</th><th>Posts</th><th>Likes</th><th>Comments</th><th>Interactions</th><th>Int./Post</th></tr></thead><tbody id="heatmap"></tbody></table></div></div>
+ <div class="card" data-ai-target="ranking"><h3>Key Takeaways รายสถาบัน</h3><div class="rank-list" id="takeaways"></div></div>
+ <div class="card" data-ai-target="distribution_summary"><h3>สัญญาณที่ควรติดตาม</h3><p class="subtitle">เรียงจาก Interactions ต่อ Post ที่วัดได้</p><div class="rank-list" id="signals"></div></div>
 </section>
 
 </main>
@@ -51,6 +57,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="config.js?v=20260915-3"></script>
-<script src="dashboard-data.js?v=3"></script>
-<script src="institutions.js?v=3"></script>
+<script src="dashboard-data.js?v=4"></script>
+<script src="institutions.js?v=4"></script>
+<script src="ai-chat.js?v=1"></script>
 </body></html>

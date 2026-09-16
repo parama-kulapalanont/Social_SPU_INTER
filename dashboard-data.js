@@ -72,7 +72,7 @@ function postCard(r, rank){
   const cls = r.platform==="instagram" ? "ig":"fb";
   const key = registerPost(r);
 
-  return `<article class="post-card" data-post-key="${key}" tabindex="0" role="button" aria-label="ดูรายละเอียด Post">
+  return `<article class="post-card" data-post-key="${key}" data-post-url="${esc(r.post_url||"")}" tabindex="0" role="button" aria-label="ดูรายละเอียด Post">
     <div class="post-thumb">${esc(r.institution_code||"")} · ${esc(p)}</div>
     <div class="post-body">
       <div class="post-meta">
@@ -218,7 +218,10 @@ function filterRows(rows, state=__filterState, options=__filterOptions){
       if(Number.isNaN(t) || t < now - days*86400000) return false;
     }
 
-    if(selected.length){
+    const aiOverride = window.SPU_SOCIAL_AI_FILTER_OVERRIDE;
+    if(aiOverride && Array.isArray(aiOverride.institutions) && aiOverride.institutions.length){
+      if(!aiOverride.institutions.includes(r.institution_code)) return false;
+    } else if(selected.length){
       if(options.mode==="comparison"){
         if(r.institution_code!=="SPU" && !selected.includes(r.institution_code)) return false;
       } else {
@@ -324,6 +327,14 @@ function initFilters(rows, onChange, options={mode:"comparison"}){
       platform:pf.value,
       institutions:selectedCodes()
     };
+
+    // Expose the real dashboard filter state to the AI overlay.
+    window.SPU_SOCIAL_FILTER_STATE = {
+      period: __filterState.period,
+      platform: __filterState.platform,
+      institutions: [...__filterState.institutions]
+    };
+    window.SPU_SOCIAL_FILTER_MODE = options.mode;
 
     updateLabel();
 

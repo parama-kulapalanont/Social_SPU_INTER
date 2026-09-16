@@ -46,6 +46,36 @@
   const cfg = window.SPU_SOCIAL_CONFIG || {};
   const functionUrl = `${cfg.SUPABASE_URL}/functions/v1/social-ai-chat`;
 
+  // Some browsers / embedded previews can block sessionStorage.
+  // All chat controls must keep working even when storage is unavailable.
+  let memoryStorage = {};
+
+  function storageGet(key){
+    try{
+      return sessionStorage.getItem(key);
+    }catch{
+      return Object.prototype.hasOwnProperty.call(memoryStorage,key)
+        ? memoryStorage[key]
+        : null;
+    }
+  }
+
+  function storageSet(key,value){
+    try{
+      sessionStorage.setItem(key,value);
+      return;
+    }catch{
+      memoryStorage[key]=value;
+    }
+  }
+
+  function storageRemove(key){
+    try{
+      sessionStorage.removeItem(key);
+    }catch{}
+    delete memoryStorage[key];
+  }
+
   function esc(s){
     return String(s ?? "").replace(/[&<>"']/g,c=>({
       "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
@@ -169,14 +199,14 @@
 
   function loadSession(){
     try{
-      const raw = sessionStorage.getItem(STORAGE_KEY);
+      const raw = storageGet(STORAGE_KEY);
       if(!raw) return;
 
       const saved = JSON.parse(raw);
       const last = Number(saved.lastQuestionAt || 0);
 
       if(last && Date.now() - last >= IDLE_MS){
-        sessionStorage.removeItem(STORAGE_KEY);
+        storageRemove(STORAGE_KEY);
         return;
       }
 
@@ -199,18 +229,18 @@
         ? saved.focusSnapshots
         : {};
     }catch{
-      sessionStorage.removeItem(STORAGE_KEY);
+      storageRemove(STORAGE_KEY);
     }
   }
 
   function saveSession(){
     // If there is neither conversation nor focus, no need to persist anything.
     if(!messages.length && !activeFocus && chatMode==="closed"){
-      sessionStorage.removeItem(STORAGE_KEY);
+      storageRemove(STORAGE_KEY);
       return;
     }
 
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+    storageSet(STORAGE_KEY, JSON.stringify({
       messages: messages.slice(-12),
       suggestions: suggestions.slice(0,4),
       lastQuestionAt,
@@ -330,7 +360,7 @@
     chatMode = "closed";
     focusRelevantUrls = [];
     focusSnapshots = {};
-    sessionStorage.removeItem(STORAGE_KEY);
+    storageRemove(STORAGE_KEY);
     applyChatMode();
     renderConversation();
   }
@@ -355,7 +385,7 @@
     focusRelevantUrls = [];
     focusSnapshots = {};
     chatMode = "closed";
-    sessionStorage.removeItem(STORAGE_KEY);
+    storageRemove(STORAGE_KEY);
     applyChatMode();
     renderConversation();
   }
@@ -410,8 +440,27 @@
 
     const suggestionHost = document.querySelector("#socialAiSuggestions");
 
-    if(suggestionHost) body.insertBefore(node,suggestionHost);
-    else body.appendChild(node);
+    if(suggestionHost){
+      // On the empty-chat view the suggestion host is nested inside .ai-empty,
+      // so it is not a direct child of the chat body. insertBefore() only accepts
+      // a direct child as the reference node.
+      const directAnchor =
+        suggestionHost.parentElement === body
+          ? suggestionHost
+          : (
+              suggestionHost.parentElement?.parentElement === body
+                ? suggestionHost.parentElement
+                : null
+            );
+
+      if(directAnchor){
+        body.insertBefore(node,directAnchor);
+      }else{
+        body.appendChild(node);
+      }
+    }else{
+      body.appendChild(node);
+    }
 
     if(scroll) body.scrollTop = body.scrollHeight;
   }
@@ -435,8 +484,24 @@
     div.id = "socialAiLoading";
     div.textContent = "กำลังวิเคราะห์...";
 
-    if(host) body.insertBefore(div,host);
-    else body.appendChild(div);
+    if(host){
+      const directAnchor =
+        host.parentElement === body
+          ? host
+          : (
+              host.parentElement?.parentElement === body
+                ? host.parentElement
+                : null
+            );
+
+      if(directAnchor){
+        body.insertBefore(div,directAnchor);
+      }else{
+        body.appendChild(div);
+      }
+    }else{
+      body.appendChild(div);
+    }
 
     body.scrollTop = body.scrollHeight;
   }

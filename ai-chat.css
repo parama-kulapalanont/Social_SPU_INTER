@@ -133,3 +133,102 @@
   .ai-chat{right:8px;bottom:8px;width:calc(100vw - 16px);height:82vh}
   .ai-focus-bar{align-items:flex-start;flex-direction:column}
 }
+
+
+/* ===== UX Fix v2 ===== */
+
+.ai-chat-head-actions{
+  display:flex;
+  align-items:center;
+  gap:3px;
+}
+
+.ai-chat-minimize,
+.ai-chat-close{
+  width:34px;
+  height:34px;
+  border:0;
+  background:transparent;
+  border-radius:9px;
+  color:#475569;
+  cursor:pointer;
+  display:grid;
+  place-items:center;
+}
+
+.ai-chat-minimize{
+  font-size:22px;
+  line-height:1;
+}
+
+.ai-chat-minimize:hover,
+.ai-chat-close:hover{
+  background:#fff;
+}
+
+.ai-fab.has-session::after{
+  content:"";
+  position:absolute;
+  width:10px;
+  height:10px;
+  right:2px;
+  top:2px;
+  border-radius:50%;
+  background:#fff;
+  border:2px solid #7c3aed;
+}
+
+.ai-answer{
+  font-size:12px;
+  line-height:1.68;
+}
+
+.ai-answer p{
+  margin:0 0 10px;
+}
+
+.ai-answer p:last-child{
+  margin-bottom:0;
+}
+
+.ai-answer-section{
+  margin:12px 0 5px;
+  font-weight:800;
+  color:#172033;
+}
+
+.ai-answer-bullet{
+  display:grid;
+  grid-template-columns:12px 1fr;
+  gap:5px;
+  margin:5px 0;
+}
+
+.ai-answer-bullet::before{
+  content:"•";
+  color:#ec168c;
+  font-weight:900;
+}
+
+.ai-answer a{
+  color:#2563eb;
+  text-decoration:underline;
+}
+
+.ai-empty{
+  padding:3px 0 1px;
+}
+
+.ai-empty .ai-suggest-title{
+  margin-top:5px;
+}
+
+.ai-focus-persistent-note{
+  font-size:10px;
+  color:#64748b;
+  margin-top:3px;
+}
+
+@media(max-width:680px){
+  .ai-chat-head-actions{gap:0}
+}

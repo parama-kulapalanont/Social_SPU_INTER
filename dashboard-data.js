@@ -24,7 +24,7 @@ let __filterState = {period:"all", platform:"all", institutions:[]};
 let __filterOptions = {mode:"comparison"};
 
 async function fetchRows(){
-  const {data,error} = await sb.rpc("get_social_dashboard_posts");
+  const {data,error} = await sb.rpc("get_social_dashboard_posts_v2");
   if(error) throw error;
   __allRows = Array.isArray(data)?data:[];
   return __allRows;
@@ -72,8 +72,13 @@ function postCard(r, rank){
   const cls = r.platform==="instagram" ? "ig":"fb";
   const key = registerPost(r);
 
+  const imageUrl = r.thumbnail_url || r.media_url || r.image_url || null;
+
   return `<article class="post-card" data-post-key="${key}" data-post-url="${esc(r.post_url||"")}" tabindex="0" role="button" aria-label="ดูรายละเอียด Post">
-    <div class="post-thumb">${esc(r.institution_code||"")} · ${esc(p)}</div>
+    <div class="post-thumb ${imageUrl ? "has-image" : ""}">
+      ${imageUrl ? `<img src="${esc(imageUrl)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove();this.parentElement.classList.remove('has-image')">` : ""}
+      <span>${esc(r.institution_code||"")} · ${esc(p)}</span>
+    </div>
     <div class="post-body">
       <div class="post-meta">
         <span>#${rank} <span class="badge ${cls}">${esc(p)}</span></span>
@@ -150,8 +155,8 @@ function openPostDetail(key){
     <div class="post-detail-grid">
       <div class="post-media">
         ${imageUrl
-          ? `<img src="${esc(imageUrl)}" alt="ภาพประกอบ Post" onerror="this.parentElement.innerHTML='<div class=&quot;media-placeholder&quot;>ไม่สามารถโหลดรูปภาพจากแหล่งข้อมูลได้</div>'">`
-          : `<div class="media-placeholder"><b>ยังไม่มีรูปภาพในข้อมูลที่จัดเก็บไว้</b><br>ระบบปัจจุบันเก็บข้อมูลข้อความและ Metrics ของ Post ได้แล้ว แต่ RPC ที่ใช้อยู่ยังไม่ได้ส่ง URL รูปภาพมาแสดง</div>`
+          ? `<img src="${esc(imageUrl)}" alt="ภาพประกอบ Post" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.parentElement.innerHTML='<div class=&quot;media-placeholder&quot;>URL รูปภาพนี้ไม่สามารถโหลดได้แล้ว กรุณาเปิด Post ต้นฉบับ</div>'">`
+          : `<div class="media-placeholder"><b>Post นี้ไม่มี URL รูปภาพ</b><br>สามารถเปิด Post ต้นฉบับจากปุ่มด้านขวาได้</div>`
         }
       </div>
       <div>

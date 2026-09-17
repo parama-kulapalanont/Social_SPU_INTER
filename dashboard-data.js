@@ -108,6 +108,44 @@ function countVisibleSources(rows){
   return new Set(rows.map(r=>`${r.institution_code||"UNKNOWN"}|${r.platform||"UNKNOWN"}`)).size;
 }
 
+function socialEmbedUrl(r){
+  const url = r?.post_url;
+  if(!url) return null;
+
+  try{
+    if(r.platform === "instagram"){
+      const u = new URL(url);
+      const path = u.pathname.replace(/\/+$/, "");
+      if(/^\/(p|reel|tv)\//i.test(path)){
+        return `https://www.instagram.com${path}/embed/`;
+      }
+    }
+
+    if(r.platform === "facebook"){
+      return `https://www.facebook.com/plugins/post.php?href=${encodeURIComponent(url)}&show_text=true&width=500`;
+    }
+  }catch{
+    return null;
+  }
+
+  return null;
+}
+
+function socialEmbedMarkup(r){
+  const src = socialEmbedUrl(r);
+  if(!src) return "";
+
+  return `<div class="social-embed-wrap">
+    <iframe
+      src="${esc(src)}"
+      title="Post ต้นฉบับ"
+      loading="lazy"
+      allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+      allowfullscreen
+      referrerpolicy="no-referrer-when-downgrade"></iframe>
+  </div>`;
+}
+
 function ensurePostModal(){
   if(document.querySelector("#postDetailModal")) return;
 
@@ -151,12 +189,14 @@ function openPostDetail(key){
     : "ไม่พบวันที่เผยแพร่";
   const author = r.author_name || r.author_handle || "-";
 
+  const embedMarkup = socialEmbedMarkup(r);
+
   body.innerHTML = `
     <div class="post-detail-grid">
-      <div class="post-media">
+      <div class="post-media" id="postDetailMedia">
         ${imageUrl
-          ? `<img src="${esc(imageUrl)}" alt="ภาพประกอบ Post" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.parentElement.innerHTML='<div class=&quot;media-placeholder&quot;>URL รูปภาพนี้ไม่สามารถโหลดได้แล้ว กรุณาเปิด Post ต้นฉบับ</div>'">`
-          : `<div class="media-placeholder"><b>Post นี้ไม่มี URL รูปภาพ</b><br>สามารถเปิด Post ต้นฉบับจากปุ่มด้านขวาได้</div>`
+          ? `<img id="postDetailImage" src="${esc(imageUrl)}" alt="ภาพประกอบ Post" loading="lazy" decoding="async" referrerpolicy="no-referrer">`
+          : (embedMarkup || `<div class="media-placeholder"><b>ไม่มี URL รูปภาพที่บันทึกไว้</b><br>เปิด Post ต้นฉบับได้จากปุ่มด้านขวา</div>`)
         }
       </div>
       <div>
@@ -189,6 +229,16 @@ function openPostDetail(key){
         </div>
       </div>
     </div>`;
+
+  const detailImage = body.querySelector("#postDetailImage");
+  if(detailImage){
+    detailImage.addEventListener("error", ()=>{
+      const host = body.querySelector("#postDetailMedia");
+      if(host){
+        host.innerHTML = embedMarkup || `<div class="media-placeholder"><b>URL รูปภาพหมดอายุหรือโหลดไม่ได้</b><br>เปิด Post ต้นฉบับได้จากปุ่มด้านขวา</div>`;
+      }
+    }, {once:true});
+  }
 
   modal.classList.add("open");
   modal.setAttribute("aria-hidden","false");

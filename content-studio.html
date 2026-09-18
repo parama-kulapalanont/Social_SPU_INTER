@@ -1,1 +1,354 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>International Content Studio</title><link rel="stylesheet" href="dashboard-v2.css?v=6"><link rel="stylesheet" href="content-studio.css?v=1"></head><body><div class="app"><aside class="sidebar"><div class="brand"><div class="spu"><span>SPU</span> |</div><div class="sub">SOCIAL<br>INTELLIGENCE</div></div><nav class="nav"><a href="index.html"><span class="ico">▥</span>ภาพรวม</a><a href="benchmark.html"><span class="ico">⇄</span>SPU Benchmark</a><a href="institutions.html"><span class="ico">⌂</span>Insight รายสถาบัน</a><a href="post-history.html"><span class="ico">↺</span>ประวัติโพสต์</a><a href="content-studio.html" class="active"><span class="ico">✦</span>International Content Studio</a></nav></aside><main class="main studio-main"><div class="studio-header"><div><div class="eyebrow">INTERNATIONAL COMMUNICATION</div><h1>International Content Studio</h1><p>Analyze SPU International communication, compare with peers, and create content for global audiences.</p></div><div class="studio-badge">English-first · Data-informed · Brand-safe</div></div><div class="studio-tabs"><button class="studio-tab active" data-tab="analyze">Analyze</button><button class="studio-tab" data-tab="create">Create</button><button class="studio-tab" data-tab="library">Idea Library</button></div><section class="studio-panel active" id="tab-analyze"><div class="studio-grid two"><article class="studio-card"><div class="section-kicker">COMMUNICATION SNAPSHOT</div><h2>How SPU International currently communicates</h2><div class="insight-hero"><strong>Current signal</strong><p>Student-centered messages perform well. The opportunity is to make global relevance, career outcomes, and the Bangkok experience clearer.</p></div><div class="metric-row"><div class="metric-box"><span>Most used theme</span><b>Admissions & Campus Life</b></div><div class="metric-box"><span>Common tone</span><b>Friendly / Aspirational</b></div><div class="metric-box"><span>Strong format</span><b>Student Story</b></div></div></article><article class="studio-card"><div class="section-kicker">PEER COMPARISON</div><h2>What peers do differently</h2><div class="peer-list"><div><b>BU</b><span>Stronger lifestyle framing and visual hooks.</span></div><div><b>DPU</b><span>High-impact achievement and event framing.</span></div><div><b>STIU</b><span>More consistent international tone.</span></div></div><button class="btn-lite" id="mockCompareBtn">Compare selected institutions</button></article></div><div class="studio-grid three"><article class="studio-card mini"><div class="section-kicker">MESSAGE STRUCTURE</div><h3>SPU pattern</h3><p>Short hook → student benefit → detail → hashtags.</p></article><article class="studio-card mini"><div class="section-kicker">GLOBAL AUDIENCE</div><h3>Opportunity</h3><p>Emphasize international value, employability, Bangkok, and multicultural proof points.</p></article><article class="studio-card mini"><div class="section-kicker">CTA</div><h3>Recommended shift</h3><p>Use Apply, Visit, Meet Us, Explore Programs instead of generic Learn More.</p></article></div></section><section class="studio-panel" id="tab-create"><div class="create-layout"><div class="creator-left"><article class="studio-card"><div class="section-kicker">1 · COMMUNICATION GOAL</div><h2>What do you want to communicate?</h2><div class="goal-grid"><button class="goal active" data-goal="Admissions & Global Recruitment">Admissions & Global Recruitment</button><button class="goal " data-goal="Scholarships & Affordability">Scholarships & Affordability</button><button class="goal " data-goal="International Student Experience">International Student Experience</button><button class="goal " data-goal="Global Career & Employability">Global Career & Employability</button><button class="goal " data-goal="Academic Excellence">Academic Excellence</button><button class="goal " data-goal="Campus & Bangkok Experience">Campus & Bangkok Experience</button><button class="goal " data-goal="Student Success Stories">Student Success Stories</button><button class="goal " data-goal="Partnerships & Global Network">Partnerships & Global Network</button><button class="goal " data-goal="Innovation & Future Skills">Innovation & Future Skills</button><button class="goal " data-goal="Events & Community">Events & Community</button></div></article><article class="studio-card"><div class="section-kicker">2 · CONTENT BRIEF</div><h2>Define the message</h2><label class="field"><span>Key message</span><textarea id="keyMessage" rows="4" placeholder="What must the audience understand?"></textarea></label><div class="form-grid two"><label class="field"><span>Audience</span><select id="audience"><option>Prospective International Students</option><option>Parents</option><option>Education Agents</option><option>Partner Universities</option><option>Current International Students</option><option>Corporate Partners</option></select></label><label class="field"><span>Market / Region</span><select id="market"><option>Global / General</option><option>ASEAN</option><option>China</option><option>South Asia</option><option>Europe</option><option>Middle East</option></select></label></div><div class="form-grid three"><label class="field"><span>Platform</span><select><option>Instagram</option><option>Facebook</option><option>Instagram + Facebook</option></select></label><label class="field"><span>Language</span><select id="language"><option>English</option><option>English + Thai</option><option>English + Chinese</option><option>Thai</option><option>Chinese</option></select></label><label class="field"><span>Tone</span><select id="tone"><option>Aspirational</option><option>Friendly</option><option>Professional</option><option>Energetic</option><option>Premium</option></select></label></div><div class="guardrail-row"><label><input type="checkbox" checked> Brand-safe mode</label><label><input type="checkbox" checked> Fact-check before generation</label><label><input type="checkbox" checked> International-first wording</label></div><button class="primary-action" id="generateMock">✦ Analyze & Generate Draft</button></article></div><div class="creator-right"><article class="studio-card sticky-preview"><div class="section-row"><div><div class="section-kicker">AI DRAFT PREVIEW</div><h2>Generated post</h2></div><span class="status-pill">Mockup</span></div><div class="mock-post"><div class="mock-post-head"><div class="avatar">SPU</div><div><b>SPU International</b><span>Instagram</span></div></div><div class="mock-image"><div class="visual-label">GLOBAL FUTURE<br><strong>STARTS IN BANGKOK</strong></div></div><div class="mock-copy"><div class="hook" id="mockHook">Build your future beyond borders.</div><p id="mockCaption">Study in Bangkok, learn through real projects, and connect with a global community at SPU International.</p><div class="hashtags">#SPUInternational #StudyInBangkok #GlobalFuture</div></div></div><div class="result-block"><h3>Why this direction</h3><p id="whyText">International-first value proposition with a direct student benefit.</p></div><div class="result-block"><h3>Visual brief</h3><p id="visualBrief">Use authentic SPU students, real campus context, multicultural interaction, and Bangkok cues.</p></div><div class="preview-actions"><button>Copy Caption</button><button>Save Draft</button><button class="accent">Generate Visual</button></div></article></div></div></section><section class="studio-panel" id="tab-library"><div class="section-row"><div><div class="section-kicker">IDEA LIBRARY</div><h2>Drafts, patterns, and reusable ideas</h2></div><button class="btn-lite">+ New content brief</button></div><div class="library-grid"><article class="library-card"><span>Admissions</span><h3>Global future starts in Bangkok</h3><p>Prospective International Students · English</p></article><article class="library-card"><span>Student Experience</span><h3>One campus, many cultures</h3><p>Students + Parents · English + Chinese</p></article><article class="library-card"><span>Career</span><h3>From classroom to global workplace</h3><p>Prospective Students · English</p></article></div></section></main></div><script src="content-studio.js?v=1"></script></body></html>
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>International Content Studio | SPU Social Intelligence</title>
+<link rel="stylesheet" href="dashboard-v2.css?v=6">
+<link rel="stylesheet" href="content-studio.css?v=2">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="spu"><span>SPU</span> |</div><div class="sub">SOCIAL<br>INTELLIGENCE</div></div>
+    <nav class="nav">
+      <a href="index.html"><span class="ico">▥</span>ภาพรวม</a>
+      <a href="benchmark.html"><span class="ico">⇄</span>SPU Benchmark</a>
+      <a href="institutions.html"><span class="ico">⌂</span>Insight รายสถาบัน</a>
+      <a href="post-history.html"><span class="ico">↺</span>ประวัติโพสต์</a>
+      <a href="content-studio.html" class="active"><span class="ico">✦</span>International Content Studio</a>
+    </nav>
+  </aside>
+
+  <main class="main studio-main">
+    <div class="studio-header">
+      <div>
+        <div class="eyebrow">เครื่องมือวิเคราะห์และสร้างคอนเทนต์สำหรับหลักสูตรนานาชาติ</div>
+        <h1>International Content Studio</h1>
+        <p>วิเคราะห์รูปแบบการสื่อสารของ SPU International เทียบกับสถาบันอื่น แล้วสร้างคอนเทนต์ที่เหมาะกับกลุ่มเป้าหมายต่างชาติ</p>
+      </div>
+      <div class="studio-badge">International-first · Data-informed · Brand-safe</div>
+    </div>
+
+    <div class="studio-tabs">
+      <button class="studio-tab active" data-tab="analyze">วิเคราะห์</button>
+      <button class="studio-tab" data-tab="create">สร้างคอนเทนต์</button>
+      <button class="studio-tab" data-tab="library">คลังไอเดีย</button>
+    </div>
+
+    <section class="studio-panel active" id="tab-analyze">
+      <div class="studio-grid two">
+        <article class="studio-card">
+          <div class="section-kicker">ภาพรวมการสื่อสาร</div>
+          <h2>SPU International กำลังสื่อสารแบบไหน</h2>
+          <div class="insight-hero">
+            <strong>สัญญาณปัจจุบัน</strong>
+            <p>คอนเทนต์ที่เด่นมักสื่อสารตรง เข้าใจง่าย ใช้ประโยชน์ต่อนักศึกษาเป็นแกนหลัก และเชื่อมโยงกับประสบการณ์จริงได้ดี</p>
+          </div>
+          <div class="metric-row">
+            <div class="metric-box"><span>ธีมที่ใช้บ่อย</span><b>Admissions & Campus Life</b></div>
+            <div class="metric-box"><span>โทนหลัก</span><b>Friendly / Aspirational</b></div>
+            <div class="metric-box"><span>รูปแบบเด่น</span><b>Student Story</b></div>
+          </div>
+        </article>
+
+        <article class="studio-card">
+          <div class="section-kicker">เปรียบเทียบคู่เทียบ</div>
+          <h2>สถาบันอื่นสื่อสารต่างจากเราอย่างไร</h2>
+          <div class="peer-list">
+            <div><b>BU</b><span>เน้น Lifestyle และ Visual Hook ชัดเจน</span></div>
+            <div><b>DPU</b><span>ใช้ Achievement และ Event เป็นจุดขาย</span></div>
+            <div><b>STIU</b><span>โทนนานาชาติสม่ำเสมอและ Positioning ชัด</span></div>
+          </div>
+          <button class="btn-lite" id="mockCompareBtn">เลือกสถาบันเพื่อเปรียบเทียบ</button>
+        </article>
+      </div>
+
+      <div class="studio-grid three">
+        <article class="studio-card mini">
+          <div class="section-kicker">โครงสร้างข้อความ</div>
+          <h3>รูปแบบของ SPU</h3>
+          <p>Hook สั้น → ประโยชน์ต่อนักศึกษา → รายละเอียด → CTA / Hashtag</p>
+        </article>
+        <article class="studio-card mini">
+          <div class="section-kicker">มุมมองนานาชาติ</div>
+          <h3>โอกาสที่ควรเพิ่ม</h3>
+          <p>Career outcome, Bangkok experience, multicultural environment และ global relevance</p>
+        </article>
+        <article class="studio-card mini">
+          <div class="section-kicker">CTA</div>
+          <h3>ข้อเสนอแนะ</h3>
+          <p>ใช้ CTA ที่ชัดเจน เช่น Apply now, Explore Programs, Meet Us, Save the Date</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="studio-panel" id="tab-create">
+      <div class="create-layout">
+        <div class="creator-left">
+
+          <article class="studio-card">
+            <div class="section-kicker">STEP 1 · ประเภทคอนเทนต์</div>
+            <h2>ต้องการสร้างคอนเทนต์เกี่ยวกับอะไร</h2>
+            <div class="goal-grid" id="goalGrid">
+              <button class="goal active" data-goal="Admissions & Global Recruitment">รับสมัคร / Admissions</button>
+              <button class="goal" data-goal="Academic Calendar">ปฏิทินการศึกษา</button>
+              <button class="goal" data-goal="Scholarships & Affordability">ทุนการศึกษา</button>
+              <button class="goal" data-goal="International Student Experience">ชีวิตนักศึกษานานาชาติ</button>
+              <button class="goal" data-goal="Global Career & Employability">อาชีพและการทำงาน</button>
+              <button class="goal" data-goal="Academic Excellence">วิชาการ / หลักสูตร</button>
+              <button class="goal" data-goal="Student Success Stories">เรื่องราวความสำเร็จ</button>
+              <button class="goal" data-goal="Events & Community">กิจกรรม / Event</button>
+              <button class="goal" data-goal="Partnerships & Global Network">พันธมิตร / Global Network</button>
+              <button class="goal" data-goal="Custom">หัวข้ออื่น ๆ</button>
+            </div>
+          </article>
+
+          <article class="studio-card">
+            <div class="section-kicker">STEP 2 · ข้อมูลต้นทาง</div>
+            <h2>นำข้อมูลที่ต้องใช้เข้าระบบ</h2>
+
+            <div class="source-tabs">
+              <button class="source-tab active" data-source="type">พิมพ์ข้อมูลเอง</button>
+              <button class="source-tab" data-source="paste">วางข้อความ / ตาราง</button>
+              <button class="source-tab" data-source="upload">อัปโหลดไฟล์</button>
+            </div>
+
+            <div class="source-panel active" id="source-type">
+              <label class="field">
+                <span>หัวข้อที่ต้องการสื่อสาร</span>
+                <input id="topic" type="text" placeholder="เช่น ปฏิทินการศึกษา ภาคเรียน 1/2570">
+              </label>
+              <label class="field">
+                <span>วัตถุประสงค์ของโพสต์</span>
+                <textarea id="objective" rows="3" placeholder="เช่น แจ้งวันสำคัญให้นักศึกษานานาชาติทราบล่วงหน้าและบันทึกวันไว้"></textarea>
+              </label>
+              <label class="field">
+                <span>ข้อมูลสำคัญที่ต้องใช้</span>
+                <textarea id="facts" rows="7" placeholder="ตัวอย่าง:
+เปิดภาคเรียน: 10 มิ.ย. 2570
+ลงทะเบียน: 3–7 มิ.ย. 2570
+Midterm: 5–9 ส.ค. 2570
+Final: 7–11 ต.ค. 2570"></textarea>
+              </label>
+            </div>
+
+            <div class="source-panel" id="source-paste">
+              <label class="field">
+                <span>วางข้อความ ตาราง หรือข้อมูลจากเอกสาร</span>
+                <textarea id="pastedData" rows="12" placeholder="วางข้อมูลที่ต้องการให้ระบบอ่านและสรุป Fact ได้ที่นี่"></textarea>
+              </label>
+              <button class="btn-lite full">ตรวจจับข้อมูลสำคัญจากข้อความ</button>
+            </div>
+
+            <div class="source-panel" id="source-upload">
+              <div class="upload-box">
+                <div class="upload-icon">↑</div>
+                <b>อัปโหลดไฟล์อ้างอิง</b>
+                <p>รองรับในระบบจริง: PDF, Excel, Word, รูปภาพ</p>
+                <button class="btn-lite">เลือกไฟล์</button>
+                <small>Mockup: ยังไม่อ่านไฟล์จริงในเวอร์ชันนี้</small>
+              </div>
+            </div>
+          </article>
+
+          <article class="studio-card">
+            <div class="section-kicker">STEP 3 · Fact Guardrail</div>
+            <h2>ข้อมูลที่ AI ห้ามเปลี่ยน</h2>
+            <label class="field">
+              <span>ข้อมูลบังคับ / วันที่ / ตัวเลข / ชื่อเฉพาะ</span>
+              <textarea id="lockedFacts" rows="5" placeholder="เช่น ห้ามเปลี่ยนวันที่ทุกวัน, ห้ามเพิ่มกิจกรรมที่ไม่มีในต้นฉบับ, ใช้ชื่อ SPU International ตามนี้เท่านั้น"></textarea>
+            </label>
+            <div class="guardrail-row">
+              <label><input type="checkbox" checked> ล็อกวันที่และตัวเลข</label>
+              <label><input type="checkbox" checked> ห้ามสร้างข้อมูลที่ไม่มีต้นฉบับ</label>
+              <label><input type="checkbox" checked> ตรวจชื่อหลักสูตร / หน่วยงาน</label>
+            </div>
+          </article>
+
+          <article class="studio-card">
+            <div class="section-kicker">STEP 4 · กลุ่มเป้าหมายและช่องทาง</div>
+            <h2>ต้องการสื่อสารกับใคร และที่ไหน</h2>
+            <div class="form-grid two">
+              <label class="field">
+                <span>กลุ่มเป้าหมาย</span>
+                <select id="audience">
+                  <option>นักศึกษาต่างชาติที่สนใจสมัครเรียน</option>
+                  <option>ผู้ปกครอง</option>
+                  <option>Education Agents</option>
+                  <option>มหาวิทยาลัยพันธมิตร</option>
+                  <option>นักศึกษาต่างชาติปัจจุบัน</option>
+                  <option>อาจารย์ต่างชาติ</option>
+                  <option>Corporate Partners</option>
+                  <option>Alumni</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>ตลาด / ภูมิภาค</span>
+                <select id="market">
+                  <option>Global / General</option>
+                  <option>ASEAN</option>
+                  <option>China</option>
+                  <option>South Asia</option>
+                  <option>Europe</option>
+                  <option>Middle East</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="form-grid three">
+              <label class="field">
+                <span>ช่องทาง</span>
+                <select id="platform">
+                  <option>Instagram</option>
+                  <option>Facebook</option>
+                  <option>Instagram + Facebook</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>ภาษาของโพสต์</span>
+                <select id="language">
+                  <option>English</option>
+                  <option>English + Thai</option>
+                  <option>English + Chinese</option>
+                  <option>Thai</option>
+                  <option>Chinese</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>โทนการสื่อสาร</span>
+                <select id="tone">
+                  <option>Aspirational</option>
+                  <option>Friendly</option>
+                  <option>Professional</option>
+                  <option>Energetic</option>
+                  <option>Premium</option>
+                  <option>Warm & Welcoming</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="field">
+              <span>CTA ที่ต้องการ</span>
+              <input id="cta" type="text" placeholder="เช่น Save this post / Apply now / Explore programs">
+            </label>
+          </article>
+
+          <article class="studio-card">
+            <div class="section-kicker">STEP 5 · รูปภาพและงานออกแบบ</div>
+            <h2>ต้องการให้ภาพออกมาแบบไหน</h2>
+
+            <div class="visual-mode-grid">
+              <button class="visual-mode active" data-mode="verified">
+                <b>Design from Verified Data</b>
+                <span>เหมาะกับปฏิทิน วันที่ ค่าเทอม กำหนดการ และข้อมูลที่ต้องแม่น</span>
+              </button>
+              <button class="visual-mode" data-mode="concept">
+                <b>AI Generated Concept</b>
+                <span>เหมาะกับ Campaign, Concept, Background และ Key Visual</span>
+              </button>
+              <button class="visual-mode" data-mode="asset">
+                <b>Use SPU Real Asset</b>
+                <span>ใช้ภาพจริงของมหาวิทยาลัย นักศึกษา ห้องเรียน หรือกิจกรรม</span>
+              </button>
+            </div>
+
+            <label class="field">
+              <span>รายละเอียดภาพที่ต้องการ</span>
+              <textarea id="visualDirection" rows="5" placeholder="เช่น Infographic 4:5, หัวข้อ Academic Calendar 2027, มี Timeline 4 ช่วง, ใช้สี SPU, English only, ห้ามเปลี่ยนวันที่"></textarea>
+            </label>
+          </article>
+
+          <article class="studio-card">
+            <div class="section-kicker">STEP 6 · ตรวจความพร้อมก่อน Generate</div>
+            <div class="readiness-grid">
+              <div class="ready-item ok">✓ มีหัวข้อ</div>
+              <div class="ready-item ok">✓ กำหนดกลุ่มเป้าหมาย</div>
+              <div class="ready-item warn">! ควรระบุ Fact ที่ห้ามเปลี่ยน</div>
+              <div class="ready-item ok">✓ เลือกภาษาผลลัพธ์</div>
+            </div>
+            <button class="primary-action" id="generateMock">✦ วิเคราะห์และสร้าง Draft</button>
+          </article>
+        </div>
+
+        <div class="creator-right">
+          <article class="studio-card sticky-preview">
+            <div class="section-row">
+              <div>
+                <div class="section-kicker">ตัวอย่างผลลัพธ์</div>
+                <h2>AI Draft Preview</h2>
+              </div>
+              <span class="status-pill">Mockup</span>
+            </div>
+
+            <div class="brief-summary">
+              <b>สรุป Brief ที่ AI จะได้รับ</b>
+              <div id="briefSummary">เลือกประเภทคอนเทนต์และใส่ข้อมูลทางซ้ายเพื่อดูสรุป</div>
+            </div>
+
+            <div class="mock-post">
+              <div class="mock-post-head">
+                <div class="avatar">SPU</div>
+                <div><b>SPU International</b><span id="previewPlatform">Instagram</span></div>
+              </div>
+              <div class="mock-image">
+                <div class="visual-label" id="visualLabel">GLOBAL FUTURE<br><strong>STARTS IN BANGKOK</strong></div>
+              </div>
+              <div class="mock-copy">
+                <div class="hook" id="mockHook">Build your future beyond borders.</div>
+                <p id="mockCaption">ใส่ข้อมูลแล้วกด “วิเคราะห์และสร้าง Draft” เพื่อดูตัวอย่าง Caption</p>
+                <div class="hashtags" id="mockHashtags">#SPUInternational #StudyInBangkok</div>
+              </div>
+            </div>
+
+            <div class="result-block">
+              <h3>เหตุผลที่เลือกแนวทางนี้</h3>
+              <p id="whyText">ระบบจริงจะอธิบายว่าทำไมเลือกแนวทางการสื่อสารนี้จากข้อมูลของ SPU และคู่เทียบ</p>
+            </div>
+
+            <div class="result-block">
+              <h3>Visual Brief</h3>
+              <p id="visualBrief">ระบบจะสร้างรายละเอียดภาพโดยยึดข้อมูลที่ตรวจสอบแล้วและโหมดภาพที่เลือก</p>
+            </div>
+
+            <div class="preview-actions">
+              <button>คัดลอก Caption</button>
+              <button>บันทึก Draft</button>
+              <button class="accent">สร้างภาพ</button>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="studio-panel" id="tab-library">
+      <div class="section-row">
+        <div>
+          <div class="section-kicker">คลังไอเดีย</div>
+          <h2>Draft, Pattern และแนวทางที่นำกลับมาใช้ซ้ำได้</h2>
+        </div>
+        <button class="btn-lite">+ สร้าง Brief ใหม่</button>
+      </div>
+      <div class="library-grid">
+        <article class="library-card">
+          <span class="library-type">Admissions</span>
+          <h3>Global future starts in Bangkok</h3>
+          <p>กลุ่มเป้าหมาย: Prospective International Students · English</p>
+        </article>
+        <article class="library-card">
+          <span class="library-type">Academic Calendar</span>
+          <h3>Save these important academic dates</h3>
+          <p>กลุ่มเป้าหมาย: Current International Students · English</p>
+        </article>
+        <article class="library-card">
+          <span class="library-type">Career</span>
+          <h3>From classroom to global workplace</h3>
+          <p>กลุ่มเป้าหมาย: Prospective International Students · English</p>
+        </article>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="content-studio.js?v=2"></script>
+</body>
+</html>

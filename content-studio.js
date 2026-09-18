@@ -1,3 +1,6 @@
+let latestGeneratedDraft = null;
+let latestImagePrompt = null;
+
 
 const tabs = document.querySelectorAll(".studio-tab");
 const panels = document.querySelectorAll(".studio-panel");
@@ -102,6 +105,7 @@ function renderFactCheckNotes(items){
 }
 
 function renderGeneratedDraft(data){
+  latestGeneratedDraft = data?.generation || null;
   const g = data?.generation || {};
   const brief = data?.brief || selectedContentBrief();
 
@@ -585,3 +589,77 @@ async function runCommunicationAI(){
 
 document.querySelector("#runCommunicationAI")
   ?.addEventListener("click",runCommunicationAI);
+
+
+function renderImagePrompt(result){
+  const p = result?.image_prompt || {};
+  latestImagePrompt = p;
+
+  const el = document.querySelector("#imagePromptText");
+  if(!el) return;
+
+  const overlay = Array.isArray(p.overlay_text)
+    ? p.overlay_text.map(x=>`• ${x.text}`).join("\n")
+    : "";
+
+  el.textContent = [
+    p.prompt_en || "",
+    p.negative_prompt_en
+      ? `Negative prompt: ${p.negative_prompt_en}`
+      : "",
+    p.layout_notes_th
+      ? `Layout: ${p.layout_notes_th}`
+      : "",
+    overlay
+      ? `ข้อความที่จะวางทับในภาพ:\n${overlay}`
+      : "",
+    p.recommended_aspect_ratio
+      ? `Aspect ratio: ${p.recommended_aspect_ratio}`
+      : ""
+  ].filter(Boolean).join("\n\n");
+}
+
+async function buildImagePromptFromBrief(){
+  const btn = document.querySelector("#buildImagePrompt");
+  const brief = selectedContentBrief();
+
+  if(!brief.topic){
+    alert("กรุณาระบุหัวข้อก่อนสร้าง Image Prompt");
+    return;
+  }
+
+  btn.disabled = true;
+  const oldText = btn.textContent;
+  btn.textContent = "กำลังสร้าง Image Prompt…";
+
+  try{
+    const response = await fetch(studioAIEndpoint(),{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        action:"build_image_prompt",
+        brief,
+        generation:latestGeneratedDraft || {}
+      })
+    });
+
+    const data = await response.json().catch(()=>({}));
+
+    if(!response.ok || data?.ok !== true){
+      throw new Error(
+        data?.error || `HTTP ${response.status}`
+      );
+    }
+
+    renderImagePrompt(data);
+  }catch(err){
+    console.error("Image prompt error:",err);
+    alert(`สร้าง Image Prompt ไม่สำเร็จ: ${err?.message || String(err)}`);
+  }finally{
+    btn.disabled = false;
+    btn.textContent = oldText;
+  }
+}
+
+document.querySelector("#buildImagePrompt")
+  ?.addEventListener("click",buildImagePromptFromBrief);

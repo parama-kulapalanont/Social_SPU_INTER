@@ -14,7 +14,36 @@ let lastPrecheck = null;
 
 const fmt = n => new Intl.NumberFormat("en-US").format(Number(n||0));
 const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+
 const interactions = r => Number(r.likes||0)+Number(r.comments||0)+Number(r.shares||0);
+
+let toastTimer = null;
+function notify(message,type="info"){
+  const el=document.querySelector("#studioToast");
+  if(!el)return;
+  el.textContent=message;
+  el.className=`studio-toast ${type} show`;
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{el.className="studio-toast";},2400);
+}
+
+function markButton(btn,state,label){
+  if(!btn)return ()=>{};
+  const oldText=btn.textContent;
+  btn.classList.remove("is-done","is-error","is-busy");
+  if(state==="busy"){btn.classList.add("is-busy");btn.disabled=true;}
+  if(label)btn.textContent=label;
+  return (result="done",message=null)=>{
+    btn.disabled=false;
+    btn.classList.remove("is-busy","is-done","is-error");
+    if(result==="done")btn.classList.add("is-done");
+    if(result==="error")btn.classList.add("is-error");
+    btn.textContent=oldText;
+    setTimeout(()=>btn.classList.remove("is-done","is-error"),900);
+    if(message)notify(message,result==="error"?"error":"success");
+  };
+}
+
 
 function switchTab(name){
   tabs.forEach(x=>x.classList.toggle("active",x.dataset.tab===name));
@@ -355,30 +384,48 @@ function renderImage(url,mode){
   const facts=verifiedFactLines();
 
   if(mode==="verified"){
+    visual.classList.add("poster-mode");
+    const cta=currentDraft?.generation?.cta||"Save this post";
     visual.innerHTML=`
-      <img src="${esc(url)}" alt="Generated visual">
-      <div class="verified-overlay">
-        <h3>${esc(hook||currentDraft?.topic||"SPUIC")}</h3>
-        <div class="verified-facts">
-          ${facts.map(x=>`<div class="verified-fact">${esc(x)}</div>`).join("")}
+      <div class="poster-composite">
+        <div class="poster-hero">
+          <img src="${esc(url)}" alt="Generated hero visual">
+          <div class="poster-brand">SPUIC · SRIPATUM UNIVERSITY</div>
+        </div>
+        <div class="poster-body">
+          <h3>${esc(hook||currentDraft?.topic||"SPUIC")}</h3>
+          <div class="poster-facts">
+            ${facts.map((x,i)=>{
+              const parts=x.split(/:\s*/);
+              const label=parts.length>1?parts.shift():`KEY DATE ${i+1}`;
+              const value=parts.length?parts.join(": "):x;
+              return `<div class="poster-fact-card"><b>${esc(label)}</b><span>${esc(value)}</span></div>`;
+            }).join("")}
+          </div>
+          <div class="poster-cta">${esc(cta)}</div>
         </div>
       </div>`;
   }else{
+    visual.classList.remove("poster-mode");
     visual.innerHTML=`<img src="${esc(url)}" alt="Generated visual">`;
   }
 
   setPreviewLoading("พร้อมใช้งาน");
+  notify("สร้างภาพเรียบร้อย","success");
 }
 
 async function generateImage(){
-  if(!currentDraftId) return;
+  if(!currentDraftId){notify("ยังไม่มี Draft สำหรับสร้างภาพ","error");return;}
+  const btn=document.querySelector("#changeImageBtn");
+  const done=markButton(btn,"busy","กำลังสร้างภาพ…");
   setPreviewLoading("กำลังสร้างภาพ…");
   try{
     const data=await api({action:"generate_image",draft_id:currentDraftId});
     renderImage(data?.image?.signed_url,data?.image?.generation_mode);
+    done("done","เปลี่ยนภาพเรียบร้อย");
   }catch(err){
     renderImage(null,null);
-    alert(`สร้างภาพไม่สำเร็จ: ${err.message||err}`);
+    done("error",`สร้างภาพไม่สำเร็จ: ${err.message||err}`);
   }
 }
 
@@ -414,6 +461,7 @@ document.querySelector("#editTextBtn")?.addEventListener("click",()=>{
   document.querySelector("#editCaption").value=g.caption||"";
   document.querySelector("#editHashtags").value=Array.isArray(g.hashtags)?g.hashtags.join(" "):"";
   document.querySelector("#editPanel").hidden=false;
+  notify("เปิดโหมดแก้ไขข้อความแล้ว","info");
 });
 
 document.querySelector("#cancelEditBtn")?.addEventListener("click",()=>{
@@ -441,20 +489,28 @@ document.querySelector("#saveEditBtn")?.addEventListener("click",async()=>{
 });
 
 document.querySelector("#saveDraftBtn")?.addEventListener("click",async()=>{
-  if(!currentDraftId){alert("ยังไม่มีโพสต์ให้บันทึก");return;}
+  const btn=document.querySelector("#saveDraftBtn");
+  if(!currentDraftId){notify("ยังไม่มีโพสต์ให้บันทึก","error");return;}
+  const done=markButton(btn,"busy","กำลังบันทึก…");
   try{
     await api({action:"save_draft",draft_id:currentDraftId});
     setPreviewLoading("บันทึก Draft แล้ว");
     await loadHistory();
-  }catch(err){alert(`บันทึก Draft ไม่สำเร็จ: ${err.message||err}`);}
+    done("done","บันทึก Draft แล้ว");
+  }catch(err){done("error",`บันทึก Draft ไม่สำเร็จ: ${err.message||err}`);}
 });
 
 document.querySelector("#copyCaptionBtn")?.addEventListener("click",async()=>{
+  const btn=document.querySelector("#copyCaptionBtn");
   const g=currentDraft?.generation||{};
   const text=[g.caption,(g.hashtags||[]).join(" ")].filter(Boolean).join("\n\n");
-  if(!text){alert("ยังไม่มี Caption");return;}
-  await navigator.clipboard.writeText(text);
-  setPreviewLoading("คัดลอก Caption แล้ว");
+  if(!text){notify("ยังไม่มี Caption","error");return;}
+  const done=markButton(btn,"busy","กำลังคัดลอก…");
+  try{
+    await navigator.clipboard.writeText(text);
+    setPreviewLoading("คัดลอก Caption แล้ว");
+    done("done","คัดลอก Caption แล้ว");
+  }catch(err){done("error","คัดลอกไม่สำเร็จ");}
 });
 
 /* ---------- Download composed image ---------- */
@@ -521,6 +577,7 @@ async function downloadCompositeImage(){
       a.href=url;
       a.download=`SPUIC-${(currentDraft?.topic||"post").replace(/[^\w\-]+/g,"-").slice(0,50)}.png`;
       a.click();
+      notify("ดาวน์โหลดภาพแล้ว","success");
       setTimeout(()=>URL.revokeObjectURL(url),1000);
     },"image/png");
   }catch(err){

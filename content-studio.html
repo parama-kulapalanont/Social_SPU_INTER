@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>International Content Studio | SPU Social Intelligence</title>
 <link rel="stylesheet" href="dashboard-v2.css?v=6">
-<link rel="stylesheet" href="content-studio.css?v=9">
+<link rel="stylesheet" href="content-studio.css?v=10">
 </head>
 <body>
 <div class="app">
@@ -37,13 +37,13 @@
     </div>
 
     <section class="studio-panel active" id="tab-analyze">
-      <article class="studio-card analyze-hero">
-        <div>
-          <div class="section-kicker">ภาพรวมการสื่อสาร</div>
-          <h2>SPU International เทียบกับคู่เทียบ</h2>
-          <p class="analyze-lead">เลือกข้อมูลที่ต้องการ แล้วให้ AI สรุปเฉพาะสิ่งที่ควรรู้</p>
+      <article class="studio-card executive-analyze-hero">
+        <div class="executive-analyze-title">
+          <div class="section-kicker">SOCIAL INTELLIGENCE</div>
+          <h2>ภาพรวมการสื่อสาร SPU International</h2>
+          <p>สรุปสิ่งที่ผู้บริหารควรรู้จากข้อมูลจริงและ AI Analysis</p>
         </div>
-        <div class="analyze-actions">
+        <div class="executive-analyze-filter">
           <select id="peerFilter"><option value="ALL">ทุกสถาบัน</option></select>
           <select id="analysisPlatform">
             <option value="all">Facebook + Instagram</option>
@@ -55,48 +55,72 @@
             <option value="30">30 วันล่าสุด</option>
             <option value="90">90 วันล่าสุด</option>
           </select>
-          <button class="primary-action analyze-ai-btn" id="runCommunicationAI">✦ วิเคราะห์ด้วย GPT</button>
+          <button class="primary-action" id="runCommunicationAI">✦ วิเคราะห์ด้วย GPT</button>
         </div>
       </article>
 
-      <div class="analyze-kpis">
-        <article class="big-kpi"><span>โพสต์ SPU</span><b id="spuPostCount">—</b><small id="spuPlatformMix">—</small></article>
-        <article class="big-kpi"><span>Interactions / Post</span><b id="spuInteractionAvg">—</b><small>Like + Comment + Share</small></article>
-        <article class="big-kpi"><span>Caption เฉลี่ย</span><b id="spuCaptionAvg">—</b><small>ตัวอักษรต่อโพสต์</small></article>
+      <div class="executive-kpis">
+        <article><span>โพสต์ SPU</span><b id="spuPostCount">—</b><small id="spuPlatformMix">—</small></article>
+        <article><span>Interactions / Post</span><b id="spuInteractionAvg">—</b><small>Like + Comment + Share</small></article>
+        <article><span>Caption เฉลี่ย</span><b id="spuCaptionAvg">—</b><small>ตัวอักษรต่อโพสต์</small></article>
       </div>
 
-      <div class="analyze-summary-grid">
-        <article class="studio-card key-summary-card">
-          <div class="section-kicker">ข้อมูลจริง</div>
-          <h2>สัญญาณหลักของ SPU</h2>
-          <div class="signal-big-list">
-            <div><b id="spuStrongPlatform">—</b><span>Platform ที่ใช้มากกว่า</span></div>
-            <div><b id="spuCtaRate">—</b><span>โพสต์ที่มี CTA</span></div>
-            <div><b id="spuEnglishRate">—</b><span>Caption ที่ใช้ English เป็นหลัก</span></div>
+      <div class="executive-analyze-grid">
+        <article class="studio-card executive-key-card">
+          <div class="section-kicker">ข้อมูลบอกอะไรเรา</div>
+          <h2>ข้อสรุปสำคัญ</h2>
+          <div class="executive-signal">
+            <span>Platform หลัก</span>
+            <b id="spuStrongPlatform">—</b>
+          </div>
+          <div class="executive-signal">
+            <span>โพสต์ที่มี CTA</span>
+            <b id="spuCtaRate">—</b>
+          </div>
+          <div class="executive-signal">
+            <span>English-dominant Caption</span>
+            <b id="spuEnglishRate">—</b>
           </div>
         </article>
 
-        <article class="studio-card key-summary-card">
-          <div class="section-kicker">AI SUMMARY</div>
-          <h2>สิ่งที่ควรรู้</h2>
-          <div id="communicationAIStatus" class="ai-analysis-status">กด “วิเคราะห์ด้วย GPT” เพื่อดูคำแนะนำ</div>
+        <article class="studio-card executive-ai-card">
+          <div class="section-row">
+            <div>
+              <div class="section-kicker">AI EXECUTIVE SUMMARY</div>
+              <h2>มุมมองที่ควรรู้</h2>
+            </div>
+            <div id="communicationAIStatus" class="ai-analysis-status">กดวิเคราะห์ด้วย GPT</div>
+          </div>
+
           <div id="communicationAIOutput" hidden>
             <p class="executive-summary" id="aiSummary"></p>
-            <div class="compact-ai-points">
-              <div><h3>ควรรักษา</h3><ul id="aiKeep"></ul></div>
-              <div><h3>ควรปรับ</h3><ul id="aiChange"></ul></div>
-              <div><h3>โอกาส</h3><div id="aiOpportunities"></div></div>
+            <div class="executive-ai-columns">
+              <div>
+                <h3>ควรรักษา</h3>
+                <ul id="aiKeep"></ul>
+              </div>
+              <div>
+                <h3>ควรปรับ</h3>
+                <ul id="aiChange"></ul>
+              </div>
+              <div>
+                <h3>โอกาส</h3>
+                <div id="aiOpportunities"></div>
+              </div>
             </div>
           </div>
         </article>
       </div>
 
-      <article class="studio-card">
+      <article class="studio-card executive-posts-card">
         <div class="section-row">
-          <div><div class="section-kicker">ตัวอย่างจริง</div><h2>โพสต์ SPU ที่มี Interactions สูง</h2></div>
+          <div>
+            <div class="section-kicker">TOP SPU POSTS</div>
+            <h2>ตัวอย่างโพสต์ที่มี Interactions สูง</h2>
+          </div>
           <span class="data-count" id="spuTopCount">—</span>
         </div>
-        <div class="real-post-grid large-cards" id="spuTopPosts">
+        <div class="real-post-grid executive-post-grid" id="spuTopPosts">
           <div class="loading-card">กำลังโหลดข้อมูล…</div>
         </div>
       </article>
@@ -274,6 +298,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="config.js?v=20260915-3"></script>
-<script src="content-studio.js?v=9"></script>
+<script src="content-studio.js?v=10"></script>
+<div id="studioToast" class="studio-toast" aria-live="polite"></div>
 </body>
 </html>

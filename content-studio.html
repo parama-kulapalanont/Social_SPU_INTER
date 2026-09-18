@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>International Content Studio | SPU Social Intelligence</title>
 <link rel="stylesheet" href="dashboard-v2.css?v=6">
-<link rel="stylesheet" href="content-studio.css?v=4">
+<link rel="stylesheet" href="content-studio.css?v=8">
 </head>
 <body>
 <div class="app">
@@ -20,12 +20,12 @@
     </nav>
   </aside>
 
-  <main class="main studio-main">
-    <div class="studio-header">
+  <main class="main studio-main simple-studio">
+    <div class="studio-header compact-header">
       <div>
-        <div class="eyebrow">เครื่องมือวิเคราะห์และสร้างคอนเทนต์สำหรับหลักสูตรนานาชาติ</div>
+        <div class="eyebrow">เครื่องมือ AI สำหรับงานสื่อสารหลักสูตรนานาชาติ</div>
         <h1>International Content Studio</h1>
-        <p>วิเคราะห์รูปแบบการสื่อสารของ SPU International เทียบกับสถาบันอื่น แล้วสร้างคอนเทนต์ที่เหมาะกับกลุ่มเป้าหมายต่างชาติ</p>
+        <p>วิเคราะห์คู่แข่งแบบกระชับ และช่วยสร้างโพสต์สำหรับกลุ่มเป้าหมายต่างชาติ</p>
       </div>
       <div class="studio-badge">International-first · Data-informed · Brand-safe</div>
     </div>
@@ -36,333 +36,130 @@
       <button class="studio-tab" data-tab="library">คลังไอเดีย</button>
     </div>
 
+    <!-- ANALYZE -->
     <section class="studio-panel active" id="tab-analyze">
-      <article class="studio-card live-data-banner">
+      <article class="studio-card analyze-hero">
         <div>
-          <div class="section-kicker">ข้อมูลจริงจาก Social Intelligence</div>
-          <h2>วิเคราะห์ข้อมูลโพสต์ที่เก็บอยู่ในระบบ</h2>
-          <p>ส่วนนี้อ่านข้อมูลจาก Supabase ชุดเดียวกับ Dashboard เดิม ยังไม่ใช้ GPT วิเคราะห์เชิงภาษาในเวอร์ชันนี้</p>
+          <div class="section-kicker">ภาพรวมการสื่อสาร</div>
+          <h2>SPU International สื่อสารอย่างไร เมื่อเทียบกับคู่เทียบ</h2>
+          <p class="analyze-lead">เลือกคู่เทียบและช่วงข้อมูล แล้วให้ AI สรุปเฉพาะประเด็นสำคัญ ไม่เกิน 3–5 ข้อ</p>
         </div>
-        <div class="live-status" id="liveStatus">กำลังโหลดข้อมูล…</div>
-      </article>
-
-      <div class="analyze-toolbar">
-        <label class="field compact-field">
-          <span>เปรียบเทียบ SPU กับ</span>
+        <div class="analyze-actions">
           <select id="peerFilter">
             <option value="ALL">ทุกสถาบัน</option>
           </select>
-        </label>
-        <label class="field compact-field">
-          <span>Platform</span>
           <select id="analysisPlatform">
             <option value="all">Facebook + Instagram</option>
             <option value="facebook">Facebook</option>
             <option value="instagram">Instagram</option>
           </select>
-        </label>
-        <label class="field compact-field">
-          <span>ช่วงข้อมูล</span>
           <select id="analysisPeriod">
             <option value="all">ข้อมูลทั้งหมด</option>
             <option value="30">30 วันล่าสุด</option>
             <option value="90">90 วันล่าสุด</option>
           </select>
-        </label>
-      </div>
-
-      <div class="real-kpi-grid">
-        <article class="real-kpi">
-          <span>โพสต์ SPU</span>
-          <b id="spuPostCount">—</b>
-          <small id="spuPlatformMix">—</small>
-        </article>
-        <article class="real-kpi">
-          <span>Interactions / Post</span>
-          <b id="spuInteractionAvg">—</b>
-          <small>Likes + Comments + Shares</small>
-        </article>
-        <article class="real-kpi">
-          <span>ความยาว Caption เฉลี่ย</span>
-          <b id="spuCaptionAvg">—</b>
-          <small>ตัวอักษรต่อโพสต์</small>
-        </article>
-        <article class="real-kpi">
-          <span>โพสต์ที่มี CTA</span>
-          <b id="spuCtaRate">—</b>
-          <small>ตรวจจากข้อความ Caption</small>
-        </article>
-      </div>
-
-      <div class="studio-grid two">
-        <article class="studio-card">
-          <div class="section-kicker">SPU COMMUNICATION SIGNALS</div>
-          <h2>รูปแบบการสื่อสารที่อ่านได้จากข้อมูลจริง</h2>
-          <div class="signal-list">
-            <div><span>จำนวน Hashtag เฉลี่ย</span><b id="spuHashtagAvg">—</b></div>
-            <div><span>Caption ภาษาอังกฤษเป็นหลัก</span><b id="spuEnglishRate">—</b></div>
-            <div><span>โพสต์ที่มีคำเชิญชวน / CTA</span><b id="spuCtaRate2">—</b></div>
-            <div><span>Platform ที่มีโพสต์มากกว่า</span><b id="spuStrongPlatform">—</b></div>
-          </div>
-          <div class="analysis-note">หมายเหตุ: จุดนี้เป็นการอ่าน Pattern แบบกฎพื้นฐานจาก Caption จริง ยังไม่ใช่การตีความเชิงกลยุทธ์โดย GPT</div>
-        </article>
-
-        <article class="studio-card">
-          <div class="section-kicker">SPU VS PEERS</div>
-          <h2>เปรียบเทียบตัวเลขการสื่อสาร</h2>
-          <div class="comparison-table-wrap">
-            <table class="comparison-table">
-              <thead>
-                <tr>
-                  <th>กลุ่ม</th>
-                  <th>Posts</th>
-                  <th>Interaction/Post</th>
-                  <th>Caption Avg.</th>
-                  <th>CTA</th>
-                </tr>
-              </thead>
-              <tbody id="comparisonBody">
-                <tr><td colspan="5">กำลังโหลด…</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </article>
-      </div>
-
-      <article class="studio-card ai-analysis-card">
-        <div class="section-row ai-analysis-head">
-          <div>
-            <div class="section-kicker">GPT COMMUNICATION ANALYST</div>
-            <h2>ให้ GPT วิเคราะห์รูปแบบการสื่อสาร</h2>
-            <p>วิเคราะห์ Caption และตัวอย่าง Post จริงของ SPU เทียบกับสถาบันที่เลือก โดยเน้นมุมการสื่อสารสำหรับกลุ่มนานาชาติ</p>
-          </div>
-          <button class="primary-action ai-run-button" id="runCommunicationAI">✦ วิเคราะห์ด้วย GPT</button>
-        </div>
-
-        <div class="ai-analysis-status" id="communicationAIStatus">
-          เลือกสถาบัน / Platform / ช่วงข้อมูลด้านบน แล้วกด “วิเคราะห์ด้วย GPT”
-        </div>
-
-        <div class="ai-analysis-output" id="communicationAIOutput" hidden>
-          <div class="ai-summary-box">
-            <span>บทสรุป</span>
-            <p id="aiSummary"></p>
-          </div>
-
-          <div class="ai-result-grid">
-            <div class="ai-result-box">
-              <h3>ธีมที่ SPU ใช้</h3>
-              <div class="ai-chip-list" id="aiThemes"></div>
-            </div>
-            <div class="ai-result-box">
-              <h3>Tone of Voice</h3>
-              <div class="ai-chip-list" id="aiTone"></div>
-            </div>
-            <div class="ai-result-box">
-              <h3>โครงสร้างข้อความ</h3>
-              <ul id="aiStructure"></ul>
-            </div>
-            <div class="ai-result-box">
-              <h3>CTA ที่พบ</h3>
-              <ul id="aiCTA"></ul>
-            </div>
-          </div>
-
-          <div class="ai-result-grid two">
-            <div class="ai-result-box">
-              <h3>ความเหมาะสมกับการสื่อสารนานาชาติ</h3>
-              <p class="ai-assessment" id="aiInternationalAssessment"></p>
-              <ul id="aiInternationalReasons"></ul>
-            </div>
-            <div class="ai-result-box">
-              <h3>สิ่งที่ควรรักษาไว้</h3>
-              <ul id="aiKeep"></ul>
-            </div>
-          </div>
-
-          <div class="ai-result-box">
-            <h3>เทียบกับสถาบันอื่น</h3>
-            <div id="aiPeerComparison" class="ai-peer-grid"></div>
-          </div>
-
-          <div class="ai-result-box">
-            <h3>โอกาสในการพัฒนาการสื่อสารของ SPU</h3>
-            <div id="aiOpportunities" class="ai-opportunity-grid"></div>
-          </div>
-
-          <div class="ai-result-grid two">
-            <div class="ai-result-box">
-              <h3>สิ่งที่ควรปรับ</h3>
-              <ul id="aiChange"></ul>
-            </div>
-            <div class="ai-result-box">
-              <h3>ข้อจำกัดของการวิเคราะห์</h3>
-              <ul id="aiLimitations"></ul>
-            </div>
-          </div>
-
-          <div class="ai-result-box">
-            <h3>Post ที่ใช้เป็นหลักฐานประกอบ</h3>
-            <div id="aiEvidence" class="ai-evidence-list"></div>
-          </div>
+          <button class="primary-action analyze-ai-btn" id="runCommunicationAI">✦ วิเคราะห์ด้วย GPT</button>
         </div>
       </article>
+
+      <div class="analyze-kpis">
+        <article class="big-kpi"><span>โพสต์ SPU</span><b id="spuPostCount">—</b><small id="spuPlatformMix">—</small></article>
+        <article class="big-kpi"><span>Interactions / Post</span><b id="spuInteractionAvg">—</b><small>Like + Comment + Share</small></article>
+        <article class="big-kpi"><span>Caption เฉลี่ย</span><b id="spuCaptionAvg">—</b><small>ตัวอักษรต่อโพสต์</small></article>
+      </div>
+
+      <div class="analyze-summary-grid">
+        <article class="studio-card key-summary-card">
+          <div class="section-kicker">สิ่งที่เห็นจากข้อมูลจริง</div>
+          <h2>สัญญาณหลักของ SPU</h2>
+          <div class="signal-big-list">
+            <div><b id="spuStrongPlatform">—</b><span>Platform ที่มีโพสต์มากกว่า</span></div>
+            <div><b id="spuCtaRate">—</b><span>โพสต์ที่มี CTA</span></div>
+            <div><b id="spuEnglishRate">—</b><span>Caption ที่ใช้ English เป็นหลัก</span></div>
+          </div>
+        </article>
+
+        <article class="studio-card key-summary-card">
+          <div class="section-kicker">AI SUMMARY</div>
+          <h2>ข้อสรุปที่ควรรู้</h2>
+          <div id="communicationAIStatus" class="ai-analysis-status">กด “วิเคราะห์ด้วย GPT” เพื่อดูคำแนะนำแบบกระชับ</div>
+          <div id="communicationAIOutput" hidden>
+            <p class="executive-summary" id="aiSummary"></p>
+            <div class="compact-ai-points">
+              <div><h3>สิ่งที่ควรรักษา</h3><ul id="aiKeep"></ul></div>
+              <div><h3>สิ่งที่ควรปรับ</h3><ul id="aiChange"></ul></div>
+              <div><h3>โอกาส</h3><div id="aiOpportunities"></div></div>
+            </div>
+          </div>
+        </article>
+      </div>
 
       <article class="studio-card">
         <div class="section-row">
           <div>
-            <div class="section-kicker">TOP SPU POSTS</div>
-            <h2>โพสต์ SPU ที่มี Engagement สูงในข้อมูลที่เลือก</h2>
+            <div class="section-kicker">ตัวอย่างจริง</div>
+            <h2>โพสต์ SPU ที่มี Interactions สูง</h2>
           </div>
           <span class="data-count" id="spuTopCount">—</span>
         </div>
-        <div class="real-post-grid" id="spuTopPosts">
-          <div class="loading-card">กำลังโหลดข้อมูล…</div>
-        </div>
-      </article>
-
-      <article class="studio-card">
-        <div class="section-row">
-          <div>
-            <div class="section-kicker">PEER EXAMPLES</div>
-            <h2>ตัวอย่างโพสต์จากสถาบันเปรียบเทียบ</h2>
-          </div>
-          <span class="data-count" id="peerTopCount">—</span>
-        </div>
-        <div class="real-post-grid" id="peerTopPosts">
+        <div class="real-post-grid large-cards" id="spuTopPosts">
           <div class="loading-card">กำลังโหลดข้อมูล…</div>
         </div>
       </article>
     </section>
 
+    <!-- CREATE -->
     <section class="studio-panel" id="tab-create">
-      <div class="create-layout">
-        <div class="creator-left">
-
-          <article class="studio-card">
-            <div class="section-kicker">STEP 1 · ประเภทคอนเทนต์</div>
-            <h2>ต้องการสร้างคอนเทนต์เกี่ยวกับอะไร</h2>
-            <div class="goal-grid" id="goalGrid">
-              <button class="goal active" data-goal="Admissions & Global Recruitment">รับสมัคร / Admissions</button>
-              <button class="goal" data-goal="Academic Calendar">ปฏิทินการศึกษา</button>
-              <button class="goal" data-goal="Scholarships & Affordability">ทุนการศึกษา</button>
-              <button class="goal" data-goal="International Student Experience">ชีวิตนักศึกษานานาชาติ</button>
-              <button class="goal" data-goal="Global Career & Employability">อาชีพและการทำงาน</button>
-              <button class="goal" data-goal="Academic Excellence">วิชาการ / หลักสูตร</button>
-              <button class="goal" data-goal="Student Success Stories">เรื่องราวความสำเร็จ</button>
-              <button class="goal" data-goal="Events & Community">กิจกรรม / Event</button>
-              <button class="goal" data-goal="Partnerships & Global Network">พันธมิตร / Global Network</button>
-              <button class="goal" data-goal="Custom">หัวข้ออื่น ๆ</button>
-            </div>
+      <div class="simple-create-layout">
+        <div class="simple-create-form">
+          <article class="studio-card create-card">
+            <div class="step-title"><span>1</span><div><h2>เรื่องที่ต้องการสื่อสาร</h2><p>พิมพ์สั้น ๆ ว่าต้องการทำโพสต์เกี่ยวกับอะไร</p></div></div>
+            <textarea id="topic" rows="3" placeholder="เช่น SPUIC Academic Calendar Highlights — Semester 1/2027"></textarea>
           </article>
 
-          <article class="studio-card">
-            <div class="section-kicker">STEP 2 · ข้อมูลต้นทาง</div>
-            <h2>นำข้อมูลที่ต้องใช้เข้าระบบ</h2>
-
+          <article class="studio-card create-card">
+            <div class="step-title"><span>2</span><div><h2>ข้อมูลประกอบ</h2><p>ใส่ข้อมูลสำคัญ หรือวางข้อความจากเอกสาร</p></div></div>
             <div class="source-tabs">
               <button class="source-tab active" data-source="type">พิมพ์ข้อมูลเอง</button>
-              <button class="source-tab" data-source="paste">วางข้อความ / ตาราง</button>
+              <button class="source-tab" data-source="paste">วางข้อความ</button>
               <button class="source-tab" data-source="upload">อัปโหลดไฟล์</button>
             </div>
 
             <div class="source-panel active" id="source-type">
-              <label class="field">
-                <span>หัวข้อที่ต้องการสื่อสาร</span>
-                <input id="topic" type="text" placeholder="เช่น ปฏิทินการศึกษา ภาคเรียน 1/2570">
-              </label>
-              <label class="field">
-                <span>วัตถุประสงค์ของโพสต์</span>
-                <textarea id="objective" rows="3" placeholder="เช่น แจ้งวันสำคัญให้นักศึกษานานาชาติทราบล่วงหน้าและบันทึกวันไว้"></textarea>
-              </label>
-              <label class="field">
-                <span>Key Message / สิ่งที่ต้องการให้ผู้รับสารเข้าใจ</span>
-                <textarea id="keyMessage" rows="3" placeholder="เช่น Plan your semester with confidence and never miss an important academic date."></textarea>
-              </label>
-              <label class="field">
-                <span>ข้อมูลสำคัญที่ต้องใช้</span>
-                <textarea id="facts" rows="7" placeholder="ตัวอย่าง:
-เปิดภาคเรียน: 10 มิ.ย. 2570
-ลงทะเบียน: 3–7 มิ.ย. 2570
-Midterm: 5–9 ส.ค. 2570
-Final: 7–11 ต.ค. 2570"></textarea>
-              </label>
+              <textarea id="facts" rows="8" placeholder="เช่น
+- Registration: 1–7 August 2027
+- Add / Drop Period: 8–14 August 2027
+- Midterm Examination: 6–10 October 2027"></textarea>
             </div>
 
             <div class="source-panel" id="source-paste">
-              <label class="field">
-                <span>วางข้อความ ตาราง หรือข้อมูลจากเอกสาร</span>
-                <textarea id="pastedData" rows="12" placeholder="วางข้อมูลที่ต้องการให้ระบบอ่านและสรุป Fact ได้ที่นี่"></textarea>
-              </label>
-              <button class="btn-lite full">ตรวจจับข้อมูลสำคัญจากข้อความ</button>
+              <textarea id="pastedData" rows="8" placeholder="วางข้อความ ตาราง หรือข้อมูลจากเอกสาร"></textarea>
             </div>
 
             <div class="source-panel" id="source-upload">
               <div class="upload-box">
-                <div class="upload-icon">↑</div>
                 <b>อัปโหลดไฟล์อ้างอิง</b>
-                <p>รองรับในระบบจริง: PDF, Excel, Word, รูปภาพ</p>
-                <button class="btn-lite">เลือกไฟล์</button>
-                <small>Mockup: ยังไม่อ่านไฟล์จริงในเวอร์ชันนี้</small>
+                <p>PDF, Excel, Word หรือรูปภาพ</p>
+                <button class="btn-lite" type="button">เลือกไฟล์</button>
+                <small>โหมดอัปโหลดไฟล์จริงจะเชื่อมในขั้นถัดไป</small>
               </div>
             </div>
           </article>
 
-          <article class="studio-card">
-            <div class="section-kicker">STEP 3 · Fact Guardrail</div>
-            <h2>ข้อมูลที่ AI ห้ามเปลี่ยน</h2>
-            <label class="field">
-              <span>ข้อมูลบังคับ / วันที่ / ตัวเลข / ชื่อเฉพาะ</span>
-              <textarea id="lockedFacts" rows="5" placeholder="เช่น ห้ามเปลี่ยนวันที่ทุกวัน, ห้ามเพิ่มกิจกรรมที่ไม่มีในต้นฉบับ, ใช้ชื่อ SPU International ตามนี้เท่านั้น"></textarea>
-            </label>
-            <div class="guardrail-row">
-              <label><input type="checkbox" checked> ล็อกวันที่และตัวเลข</label>
-              <label><input type="checkbox" checked> ห้ามสร้างข้อมูลที่ไม่มีต้นฉบับ</label>
-              <label><input type="checkbox" checked> ตรวจชื่อหลักสูตร / หน่วยงาน</label>
-            </div>
-          </article>
-
-          <article class="studio-card">
-            <div class="section-kicker">STEP 4 · กลุ่มเป้าหมายและช่องทาง</div>
-            <h2>ต้องการสื่อสารกับใคร และที่ไหน</h2>
-            <div class="form-grid two">
-              <label class="field">
-                <span>กลุ่มเป้าหมาย</span>
+          <article class="studio-card create-card">
+            <div class="step-title"><span>3</span><div><h2>ตั้งค่าการสื่อสาร</h2><p>เลือกเท่าที่จำเป็น ที่เหลือให้ AI ช่วยคิดให้</p></div></div>
+            <div class="simple-options-grid">
+              <label><span>กลุ่มเป้าหมาย</span>
                 <select id="audience">
+                  <option>นักศึกษาต่างชาติปัจจุบัน</option>
                   <option>นักศึกษาต่างชาติที่สนใจสมัครเรียน</option>
                   <option>ผู้ปกครอง</option>
                   <option>Education Agents</option>
                   <option>มหาวิทยาลัยพันธมิตร</option>
-                  <option>นักศึกษาต่างชาติปัจจุบัน</option>
-                  <option>อาจารย์ต่างชาติ</option>
                   <option>Corporate Partners</option>
-                  <option>Alumni</option>
                 </select>
               </label>
-              <label class="field">
-                <span>ตลาด / ภูมิภาค</span>
-                <select id="market">
-                  <option>Global / General</option>
-                  <option>ASEAN</option>
-                  <option>China</option>
-                  <option>South Asia</option>
-                  <option>Europe</option>
-                  <option>Middle East</option>
-                </select>
-              </label>
-            </div>
-
-            <div class="form-grid three">
-              <label class="field">
-                <span>ช่องทาง</span>
-                <select id="platform">
-                  <option>Instagram</option>
-                  <option>Facebook</option>
-                  <option>Instagram + Facebook</option>
-                </select>
-              </label>
-              <label class="field">
-                <span>ภาษาของโพสต์</span>
+              <label><span>ภาษา</span>
                 <select id="language">
                   <option>English</option>
                   <option>English + Thai</option>
@@ -371,163 +168,100 @@ Final: 7–11 ต.ค. 2570"></textarea>
                   <option>Chinese</option>
                 </select>
               </label>
-              <label class="field">
-                <span>โทนการสื่อสาร</span>
+              <label><span>Platform</span>
+                <select id="platform">
+                  <option>Instagram</option>
+                  <option>Facebook</option>
+                  <option>Instagram + Facebook</option>
+                </select>
+              </label>
+              <label><span>โทน</span>
                 <select id="tone">
-                  <option>Aspirational</option>
-                  <option>Friendly</option>
+                  <option>ให้ AI แนะนำ</option>
                   <option>Professional</option>
+                  <option>Friendly</option>
+                  <option>Aspirational</option>
                   <option>Energetic</option>
-                  <option>Premium</option>
                   <option>Warm & Welcoming</option>
                 </select>
               </label>
             </div>
-
-            <label class="field">
-              <span>CTA ที่ต้องการ</span>
-              <input id="cta" type="text" placeholder="เช่น Save this post / Apply now / Explore programs">
-            </label>
+            <button class="primary-action main-create-btn" id="precheckContent">✦ ให้ AI ช่วยสร้างโพสต์</button>
           </article>
 
-          <article class="studio-card">
-            <div class="section-kicker">STEP 5 · รูปภาพและงานออกแบบ</div>
-            <h2>ต้องการให้ภาพออกมาแบบไหน</h2>
-
-            <div class="visual-mode-grid">
-              <button class="visual-mode active" data-mode="verified">
-                <b>Design from Verified Data</b>
-                <span>เหมาะกับปฏิทิน วันที่ ค่าเทอม กำหนดการ และข้อมูลที่ต้องแม่น</span>
-              </button>
-              <button class="visual-mode" data-mode="concept">
-                <b>AI Generated Concept</b>
-                <span>เหมาะกับ Campaign, Concept, Background และ Key Visual</span>
-              </button>
-              <button class="visual-mode" data-mode="asset">
-                <b>Use SPU Real Asset</b>
-                <span>ใช้ภาพจริงของมหาวิทยาลัย นักศึกษา ห้องเรียน หรือกิจกรรม</span>
-              </button>
+          <article class="studio-card ai-advice-card" id="precheckCard" hidden>
+            <div class="section-kicker">AI แนะนำก่อนสร้าง</div>
+            <h2>ก่อนสร้างโพสต์ AI แนะนำสั้น ๆ</h2>
+            <div id="precheckQuestions"></div>
+            <div id="precheckAdvice"></div>
+            <div class="precheck-actions">
+              <button class="btn-lite" id="editInputBtn" type="button">แก้ข้อมูล</button>
+              <button class="primary-action" id="generateMock" type="button">สร้างตามคำแนะนำ</button>
             </div>
-
-            <label class="field">
-              <span>Creative Direction / แนวทางการสื่อสารและภาพ</span>
-              <textarea id="creativeDirection" rows="4" placeholder="เช่น Modern international, clean infographic, SPU pink accent, อ่านง่ายสำหรับนักศึกษาต่างชาติ"></textarea>
-            </label>
-
-            <label class="field">
-              <span>รายละเอียดภาพที่ต้องการ</span>
-              <textarea id="visualDirection" rows="5" placeholder="เช่น Infographic 4:5, หัวข้อ Academic Calendar 2027, มี Timeline 4 ช่วง, ใช้สี SPU, English only, ห้ามเปลี่ยนวันที่"></textarea>
-            </label>
-          </article>
-
-          <article class="studio-card">
-            <div class="section-kicker">STEP 6 · ตรวจความพร้อมก่อน Generate</div>
-            <div class="result-block">
-              <h3>AI Brief ก่อน Generate</h3>
-              <pre id="aiBriefPreview" style="white-space:pre-wrap;word-break:break-word;margin:0;font-size:10px;line-height:1.55;">กรอกข้อมูลเพื่อดู Brief</pre>
-            </div>
-
-            <div class="readiness-grid">
-              <div class="ready-item ok">✓ มีหัวข้อ</div>
-              <div class="ready-item ok">✓ กำหนดกลุ่มเป้าหมาย</div>
-              <div class="ready-item warn">! ควรระบุ Fact ที่ห้ามเปลี่ยน</div>
-              <div class="ready-item ok">✓ เลือกภาษาผลลัพธ์</div>
-            </div>
-            <button class="primary-action" id="generateMock">✦ วิเคราะห์และสร้าง Draft</button>
           </article>
         </div>
 
-        <div class="creator-right">
-          <article class="studio-card sticky-preview">
-            <div class="section-row">
-              <div>
-                <div class="section-kicker">ตัวอย่างผลลัพธ์</div>
-                <h2>AI Draft Preview</h2>
-              </div>
-              <span class="status-pill">Mockup</span>
+        <aside class="studio-card output-preview-card">
+          <div class="section-row">
+            <div>
+              <div class="section-kicker">ตัวอย่างผลลัพธ์</div>
+              <h2>AI Post Preview</h2>
+            </div>
+            <span class="status-pill">Preview</span>
+          </div>
+
+          <div class="post-preview-visual" id="postPreviewVisual">
+            <div class="preview-placeholder">
+              <div>SPUIC</div>
+              <strong>ภาพโพสต์จะแสดงตรงนี้</strong>
+              <span>หลัง AI สร้าง Draft</span>
+            </div>
+          </div>
+
+          <div class="post-preview-copy">
+            <h3>Headline</h3>
+            <div class="preview-hook" id="mockHook">—</div>
+
+            <h3>Caption</h3>
+            <p id="mockCaption">กรอกข้อมูลทางซ้ายเพื่อเริ่มสร้างโพสต์</p>
+
+            <h3>Hashtag</h3>
+            <p class="hashtags" id="mockHashtags">—</p>
+
+            <div class="result-block compact-result">
+              <h3>เหตุผลที่แนะนำแนวทางนี้</h3>
+              <p id="whyText">—</p>
             </div>
 
-            <div class="brief-summary">
-              <b>สรุป Brief ที่ AI จะได้รับ</b>
-              <div id="briefSummary">เลือกประเภทคอนเทนต์และใส่ข้อมูลทางซ้ายเพื่อดูสรุป</div>
+            <div class="result-block compact-result">
+              <h3>Visual Direction</h3>
+              <p id="visualBrief">—</p>
             </div>
+          </div>
 
-            <div class="mock-post">
-              <div class="mock-post-head">
-                <div class="avatar">SPU</div>
-                <div><b>SPU International</b><span id="previewPlatform">Instagram</span></div>
-              </div>
-              <div class="mock-image">
-                <div class="visual-label" id="visualLabel">GLOBAL FUTURE<br><strong>STARTS IN BANGKOK</strong></div>
-              </div>
-              <div class="mock-copy">
-                <div class="hook" id="mockHook">Build your future beyond borders.</div>
-                <p id="mockCaption">ใส่ข้อมูลแล้วกด “วิเคราะห์และสร้าง Draft” เพื่อดูตัวอย่าง Caption</p>
-                <div class="hashtags" id="mockHashtags">#SPUInternational #StudyInBangkok</div>
-              </div>
-            </div>
-
-            <div class="result-block">
-              <h3>เหตุผลที่เลือกแนวทางนี้</h3>
-              <p id="whyText">ระบบจริงจะอธิบายว่าทำไมเลือกแนวทางการสื่อสารนี้จากข้อมูลของ SPU และคู่เทียบ</p>
-            </div>
-
-            <div class="result-block">
-              <h3>Visual Brief</h3>
-              <p id="visualBrief">ระบบจะสร้างรายละเอียดภาพโดยยึดข้อมูลที่ตรวจสอบแล้วและโหมดภาพที่เลือก</p>
-            </div>
-
-            <div class="result-block">
-              <h3>Image Prompt สำหรับสร้างภาพ</h3>
-              <p id="imagePromptText">ยังไม่ได้สร้าง Image Prompt</p>
-              <button class="btn-lite full" id="buildImagePrompt">สร้าง Image Prompt จาก Brief</button>
-            </div>
-
-            <div class="result-block">
-              <h3>ตรวจสอบ Fact ก่อนเผยแพร่</h3>
-              <div id="factCheckNotes">ยังไม่ได้ Generate Draft</div>
-            </div>
-
-            <div class="preview-actions">
-              <button>คัดลอก Caption</button>
-              <button>บันทึก Draft</button>
-              <button class="accent">สร้างภาพ</button>
-            </div>
-          </article>
-        </div>
+          <div class="preview-actions four">
+            <button type="button" id="regenerateBtn">สร้างใหม่</button>
+            <button type="button">แก้ข้อความ</button>
+            <button type="button">เปลี่ยนภาพ</button>
+            <button type="button">บันทึก Draft</button>
+          </div>
+        </aside>
       </div>
     </section>
 
+    <!-- LIBRARY -->
     <section class="studio-panel" id="tab-library">
-      <div class="section-row">
-        <div>
-          <div class="section-kicker">คลังไอเดีย</div>
-          <h2>Draft, Pattern และแนวทางที่นำกลับมาใช้ซ้ำได้</h2>
-        </div>
-        <button class="btn-lite">+ สร้าง Brief ใหม่</button>
-      </div>
-      <div class="library-grid">
-        <article class="library-card">
-          <span class="library-type">Admissions</span>
-          <h3>Global future starts in Bangkok</h3>
-          <p>กลุ่มเป้าหมาย: Prospective International Students · English</p>
-        </article>
-        <article class="library-card">
-          <span class="library-type">Academic Calendar</span>
-          <h3>Save these important academic dates</h3>
-          <p>กลุ่มเป้าหมาย: Current International Students · English</p>
-        </article>
-        <article class="library-card">
-          <span class="library-type">Career</span>
-          <h3>From classroom to global workplace</h3>
-          <p>กลุ่มเป้าหมาย: Prospective International Students · English</p>
-        </article>
-      </div>
+      <article class="studio-card">
+        <div class="section-kicker">คลังไอเดีย</div>
+        <h2>Draft และแนวคิดที่บันทึกไว้</h2>
+        <p>ส่วนนี้ยังคงเป็นพื้นที่สำหรับ Draft ที่จะเพิ่มระบบบันทึกจริงภายหลัง</p>
+      </article>
     </section>
   </main>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js?v=20260915-3"></script>
-<script src="content-studio.js?v=7"></script>
+<script src="content-studio.js?v=8"></script>
 </body>
 </html>

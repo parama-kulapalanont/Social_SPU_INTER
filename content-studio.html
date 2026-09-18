@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>International Content Studio | SPU Social Intelligence</title>
 <link rel="stylesheet" href="dashboard-v2.css?v=6">
-<link rel="stylesheet" href="content-studio.css?v=8">
+<link rel="stylesheet" href="content-studio.css?v=9">
 </head>
 <body>
 <div class="app">
@@ -23,9 +23,9 @@
   <main class="main studio-main simple-studio">
     <div class="studio-header compact-header">
       <div>
-        <div class="eyebrow">เครื่องมือ AI สำหรับงานสื่อสารหลักสูตรนานาชาติ</div>
+        <div class="eyebrow">AI สำหรับงานสื่อสารหลักสูตรนานาชาติ</div>
         <h1>International Content Studio</h1>
-        <p>วิเคราะห์คู่แข่งแบบกระชับ และช่วยสร้างโพสต์สำหรับกลุ่มเป้าหมายต่างชาติ</p>
+        <p>วิเคราะห์การสื่อสาร สร้างโพสต์ สร้างภาพ และจัดการประวัติในที่เดียว</p>
       </div>
       <div class="studio-badge">International-first · Data-informed · Brand-safe</div>
     </div>
@@ -33,21 +33,18 @@
     <div class="studio-tabs">
       <button class="studio-tab active" data-tab="analyze">วิเคราะห์</button>
       <button class="studio-tab" data-tab="create">สร้างคอนเทนต์</button>
-      <button class="studio-tab" data-tab="library">คลังไอเดีย</button>
+      <button class="studio-tab" data-tab="history">ประวัติการสร้าง</button>
     </div>
 
-    <!-- ANALYZE -->
     <section class="studio-panel active" id="tab-analyze">
       <article class="studio-card analyze-hero">
         <div>
           <div class="section-kicker">ภาพรวมการสื่อสาร</div>
-          <h2>SPU International สื่อสารอย่างไร เมื่อเทียบกับคู่เทียบ</h2>
-          <p class="analyze-lead">เลือกคู่เทียบและช่วงข้อมูล แล้วให้ AI สรุปเฉพาะประเด็นสำคัญ ไม่เกิน 3–5 ข้อ</p>
+          <h2>SPU International เทียบกับคู่เทียบ</h2>
+          <p class="analyze-lead">เลือกข้อมูลที่ต้องการ แล้วให้ AI สรุปเฉพาะสิ่งที่ควรรู้</p>
         </div>
         <div class="analyze-actions">
-          <select id="peerFilter">
-            <option value="ALL">ทุกสถาบัน</option>
-          </select>
+          <select id="peerFilter"><option value="ALL">ทุกสถาบัน</option></select>
           <select id="analysisPlatform">
             <option value="all">Facebook + Instagram</option>
             <option value="facebook">Facebook</option>
@@ -70,10 +67,10 @@
 
       <div class="analyze-summary-grid">
         <article class="studio-card key-summary-card">
-          <div class="section-kicker">สิ่งที่เห็นจากข้อมูลจริง</div>
+          <div class="section-kicker">ข้อมูลจริง</div>
           <h2>สัญญาณหลักของ SPU</h2>
           <div class="signal-big-list">
-            <div><b id="spuStrongPlatform">—</b><span>Platform ที่มีโพสต์มากกว่า</span></div>
+            <div><b id="spuStrongPlatform">—</b><span>Platform ที่ใช้มากกว่า</span></div>
             <div><b id="spuCtaRate">—</b><span>โพสต์ที่มี CTA</span></div>
             <div><b id="spuEnglishRate">—</b><span>Caption ที่ใช้ English เป็นหลัก</span></div>
           </div>
@@ -81,13 +78,13 @@
 
         <article class="studio-card key-summary-card">
           <div class="section-kicker">AI SUMMARY</div>
-          <h2>ข้อสรุปที่ควรรู้</h2>
-          <div id="communicationAIStatus" class="ai-analysis-status">กด “วิเคราะห์ด้วย GPT” เพื่อดูคำแนะนำแบบกระชับ</div>
+          <h2>สิ่งที่ควรรู้</h2>
+          <div id="communicationAIStatus" class="ai-analysis-status">กด “วิเคราะห์ด้วย GPT” เพื่อดูคำแนะนำ</div>
           <div id="communicationAIOutput" hidden>
             <p class="executive-summary" id="aiSummary"></p>
             <div class="compact-ai-points">
-              <div><h3>สิ่งที่ควรรักษา</h3><ul id="aiKeep"></ul></div>
-              <div><h3>สิ่งที่ควรปรับ</h3><ul id="aiChange"></ul></div>
+              <div><h3>ควรรักษา</h3><ul id="aiKeep"></ul></div>
+              <div><h3>ควรปรับ</h3><ul id="aiChange"></ul></div>
               <div><h3>โอกาส</h3><div id="aiOpportunities"></div></div>
             </div>
           </div>
@@ -96,10 +93,7 @@
 
       <article class="studio-card">
         <div class="section-row">
-          <div>
-            <div class="section-kicker">ตัวอย่างจริง</div>
-            <h2>โพสต์ SPU ที่มี Interactions สูง</h2>
-          </div>
+          <div><div class="section-kicker">ตัวอย่างจริง</div><h2>โพสต์ SPU ที่มี Interactions สูง</h2></div>
           <span class="data-count" id="spuTopCount">—</span>
         </div>
         <div class="real-post-grid large-cards" id="spuTopPosts">
@@ -108,17 +102,17 @@
       </article>
     </section>
 
-    <!-- CREATE -->
     <section class="studio-panel" id="tab-create">
       <div class="simple-create-layout">
         <div class="simple-create-form">
           <article class="studio-card create-card">
-            <div class="step-title"><span>1</span><div><h2>เรื่องที่ต้องการสื่อสาร</h2><p>พิมพ์สั้น ๆ ว่าต้องการทำโพสต์เกี่ยวกับอะไร</p></div></div>
+            <div class="step-title"><span>1</span><div><h2>เรื่องที่ต้องการสื่อสาร</h2><p>บอก AI สั้น ๆ ว่าต้องการทำโพสต์เรื่องอะไร</p></div></div>
             <textarea id="topic" rows="3" placeholder="เช่น SPUIC Academic Calendar Highlights — Semester 1/2027"></textarea>
           </article>
 
           <article class="studio-card create-card">
-            <div class="step-title"><span>2</span><div><h2>ข้อมูลประกอบ</h2><p>ใส่ข้อมูลสำคัญ หรือวางข้อความจากเอกสาร</p></div></div>
+            <div class="step-title"><span>2</span><div><h2>ข้อมูลประกอบ</h2><p>พิมพ์ วางข้อความ หรืออัปโหลดเอกสาร</p></div></div>
+
             <div class="source-tabs">
               <button class="source-tab active" data-source="type">พิมพ์ข้อมูลเอง</button>
               <button class="source-tab" data-source="paste">วางข้อความ</button>
@@ -126,10 +120,7 @@
             </div>
 
             <div class="source-panel active" id="source-type">
-              <textarea id="facts" rows="8" placeholder="เช่น
-- Registration: 1–7 August 2027
-- Add / Drop Period: 8–14 August 2027
-- Midterm Examination: 6–10 October 2027"></textarea>
+              <textarea id="facts" rows="8" placeholder="ใส่วันสำคัญ รายละเอียดกิจกรรม ข้อมูลหลักสูตร หรือข้อมูลที่ต้องใช้"></textarea>
             </div>
 
             <div class="source-panel" id="source-paste">
@@ -138,16 +129,17 @@
 
             <div class="source-panel" id="source-upload">
               <div class="upload-box">
+                <input id="sourceFile" type="file" accept=".pdf,.docx,.xlsx,.xls,.csv,.txt,.json" hidden>
                 <b>อัปโหลดไฟล์อ้างอิง</b>
-                <p>PDF, Excel, Word หรือรูปภาพ</p>
-                <button class="btn-lite" type="button">เลือกไฟล์</button>
-                <small>โหมดอัปโหลดไฟล์จริงจะเชื่อมในขั้นถัดไป</small>
+                <p>PDF · Word · Excel · CSV · TXT</p>
+                <button class="btn-lite" id="chooseFileBtn" type="button">เลือกไฟล์</button>
+                <small id="fileStatus">ระบบจะอ่านข้อความจากไฟล์ให้อัตโนมัติ</small>
               </div>
             </div>
           </article>
 
           <article class="studio-card create-card">
-            <div class="step-title"><span>3</span><div><h2>ตั้งค่าการสื่อสาร</h2><p>เลือกเท่าที่จำเป็น ที่เหลือให้ AI ช่วยคิดให้</p></div></div>
+            <div class="step-title"><span>3</span><div><h2>ตั้งค่าการสื่อสาร</h2><p>เลือกเท่าที่จำเป็น ที่เหลือให้ AI ช่วยคิด</p></div></div>
             <div class="simple-options-grid">
               <label><span>กลุ่มเป้าหมาย</span>
                 <select id="audience">
@@ -191,11 +183,11 @@
 
           <article class="studio-card ai-advice-card" id="precheckCard" hidden>
             <div class="section-kicker">AI แนะนำก่อนสร้าง</div>
-            <h2>ก่อนสร้างโพสต์ AI แนะนำสั้น ๆ</h2>
+            <h2>ข้อมูลที่ควรยืนยัน</h2>
             <div id="precheckQuestions"></div>
             <div id="precheckAdvice"></div>
             <div class="precheck-actions">
-              <button class="btn-lite" id="editInputBtn" type="button">แก้ข้อมูล</button>
+              <button class="btn-lite" id="editInputBtn" type="button">กลับไปแก้ข้อมูล</button>
               <button class="primary-action" id="generateMock" type="button">สร้างตามคำแนะนำ</button>
             </div>
           </article>
@@ -203,65 +195,85 @@
 
         <aside class="studio-card output-preview-card">
           <div class="section-row">
-            <div>
-              <div class="section-kicker">ตัวอย่างผลลัพธ์</div>
-              <h2>AI Post Preview</h2>
-            </div>
-            <span class="status-pill">Preview</span>
+            <div><div class="section-kicker">ผลลัพธ์</div><h2>AI Post Preview</h2></div>
+            <span class="status-pill" id="previewStatus">Preview</span>
           </div>
 
           <div class="post-preview-visual" id="postPreviewVisual">
             <div class="preview-placeholder">
-              <div>SPUIC</div>
-              <strong>ภาพโพสต์จะแสดงตรงนี้</strong>
-              <span>หลัง AI สร้าง Draft</span>
+              <div>SPUIC</div><strong>ภาพที่ AI สร้างจะแสดงตรงนี้</strong><span>หลัง Generate สำเร็จ</span>
             </div>
           </div>
 
           <div class="post-preview-copy">
             <h3>Headline</h3>
             <div class="preview-hook" id="mockHook">—</div>
-
             <h3>Caption</h3>
             <p id="mockCaption">กรอกข้อมูลทางซ้ายเพื่อเริ่มสร้างโพสต์</p>
-
             <h3>Hashtag</h3>
             <p class="hashtags" id="mockHashtags">—</p>
-
-            <div class="result-block compact-result">
-              <h3>เหตุผลที่แนะนำแนวทางนี้</h3>
-              <p id="whyText">—</p>
-            </div>
-
-            <div class="result-block compact-result">
-              <h3>Visual Direction</h3>
-              <p id="visualBrief">—</p>
-            </div>
+            <div class="result-block compact-result"><h3>เหตุผลที่แนะนำแนวทางนี้</h3><p id="whyText">—</p></div>
           </div>
 
-          <div class="preview-actions four">
+          <div class="preview-actions action-grid">
             <button type="button" id="regenerateBtn">สร้างใหม่</button>
-            <button type="button">แก้ข้อความ</button>
-            <button type="button">เปลี่ยนภาพ</button>
-            <button type="button">บันทึก Draft</button>
+            <button type="button" id="editTextBtn">แก้ไขข้อความ</button>
+            <button type="button" id="changeImageBtn">เปลี่ยนภาพ</button>
+            <button type="button" id="saveDraftBtn">บันทึก Draft</button>
+            <button type="button" id="copyCaptionBtn">คัดลอก Caption</button>
+            <button type="button" id="downloadImageBtn" class="accent">ดาวน์โหลดภาพ</button>
+          </div>
+
+          <div class="edit-panel" id="editPanel" hidden>
+            <label><span>Headline</span><input id="editHeadline"></label>
+            <label><span>Caption</span><textarea id="editCaption" rows="8"></textarea></label>
+            <label><span>Hashtags</span><input id="editHashtags"></label>
+            <div class="edit-actions">
+              <button class="btn-lite" id="cancelEditBtn" type="button">ยกเลิก</button>
+              <button class="primary-action" id="saveEditBtn" type="button">บันทึกการแก้ไข</button>
+            </div>
           </div>
         </aside>
       </div>
     </section>
 
-    <!-- LIBRARY -->
-    <section class="studio-panel" id="tab-library">
-      <article class="studio-card">
-        <div class="section-kicker">คลังไอเดีย</div>
-        <h2>Draft และแนวคิดที่บันทึกไว้</h2>
-        <p>ส่วนนี้ยังคงเป็นพื้นที่สำหรับ Draft ที่จะเพิ่มระบบบันทึกจริงภายหลัง</p>
-      </article>
+    <section class="studio-panel" id="tab-history">
+      <div class="history-toolbar">
+        <div>
+          <div class="section-kicker">ประวัติการสร้าง</div>
+          <h2>จัดการโพสต์และพื้นที่จัดเก็บ</h2>
+        </div>
+        <button class="btn-lite" id="refreshHistoryBtn">↻ รีเฟรช</button>
+      </div>
+
+      <div class="history-kpis">
+        <article><span>โพสต์ที่เก็บไว้</span><b id="historyDraftCount">0</b></article>
+        <article><span>รูปทั้งหมด</span><b id="historyImageCount">0</b></article>
+        <article><span>พื้นที่รูป</span><b id="historyStorage">0 MB</b></article>
+      </div>
+
+      <div class="history-filters">
+        <input id="historySearch" placeholder="ค้นหาหัวข้อ">
+        <select id="historyStatus">
+          <option value="">ทุกสถานะ</option>
+          <option value="generated">Generated</option>
+          <option value="draft">Draft</option>
+          <option value="final">Final</option>
+        </select>
+      </div>
+
+      <div class="history-grid" id="historyGrid">
+        <div class="loading-card">กำลังโหลดประวัติ…</div>
+      </div>
     </section>
   </main>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="config.js?v=20260915-3"></script>
-<script src="content-studio.js?v=8"></script>
+<script src="content-studio.js?v=9"></script>
 </body>
 </html>

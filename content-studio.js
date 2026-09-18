@@ -34,56 +34,155 @@ document.querySelectorAll(".visual-mode").forEach(btn=>{
   });
 });
 
-document.querySelector("#generateMock")?.addEventListener("click",()=>{
-  const goal = document.querySelector(".goal.active")?.dataset.goal || "Custom";
-  const topic = document.querySelector("#topic")?.value.trim() || "";
-  const objective = document.querySelector("#objective")?.value.trim() || "";
-  const facts = document.querySelector("#facts")?.value.trim() || "";
-  const locked = document.querySelector("#lockedFacts")?.value.trim() || "";
-  const audience = document.querySelector("#audience")?.value || "";
-  const market = document.querySelector("#market")?.value || "";
-  const platform = document.querySelector("#platform")?.value || "";
-  const language = document.querySelector("#language")?.value || "";
-  const tone = document.querySelector("#tone")?.value || "";
-  const cta = document.querySelector("#cta")?.value.trim() || "";
-  const visualMode = document.querySelector(".visual-mode.active")?.dataset.mode || "verified";
-  const visualDirection = document.querySelector("#visualDirection")?.value.trim() || "";
+
+function selectedContentBrief(){
+  return {
+    content_type:
+      document.querySelector(".goal.active")?.dataset.goal || "",
+    topic:
+      document.querySelector("#topic")?.value.trim() || "",
+    objective:
+      document.querySelector("#objective")?.value.trim() || "",
+    facts:
+      document.querySelector("#facts")?.value.trim() || "",
+    pasted_data:
+      document.querySelector("#pastedData")?.value.trim() || "",
+    locked_facts:
+      document.querySelector("#lockedFacts")?.value.trim() || "",
+    audience:
+      document.querySelector("#audience")?.value || "",
+    market:
+      document.querySelector("#market")?.value || "",
+    platform:
+      document.querySelector("#platform")?.value || "",
+    language:
+      document.querySelector("#language")?.value || "",
+    tone:
+      document.querySelector("#tone")?.value || "",
+    cta:
+      document.querySelector("#cta")?.value.trim() || "",
+    visual_mode:
+      document.querySelector(".visual-mode.active")?.dataset.mode || "verified",
+    visual_direction:
+      document.querySelector("#visualDirection")?.value.trim() || ""
+  };
+}
+
+function renderFactCheckNotes(items){
+  const el = document.querySelector("#factCheckNotes");
+  if(!el) return;
+
+  const arr = Array.isArray(items) ? items : [];
+
+  el.innerHTML = arr.length
+    ? arr.map(x=>{
+        const status = x?.status === "ok" ? "✓" : "!";
+        return `<div>${status} ${liveEsc(x?.note || "")}</div>`;
+      }).join("")
+    : "AI ไม่พบประเด็น Fact ที่ต้องเตือนเพิ่มเติม";
+}
+
+function renderGeneratedDraft(data){
+  const g = data?.generation || {};
+  const brief = data?.brief || selectedContentBrief();
+
+  document.querySelector("#mockHook").textContent =
+    g.hook || "ยังไม่มี Hook";
+
+  document.querySelector("#mockCaption").textContent =
+    g.caption || "ยังไม่มี Caption";
+
+  document.querySelector("#mockHashtags").textContent =
+    Array.isArray(g.hashtags)
+      ? g.hashtags.join(" ")
+      : "";
+
+  document.querySelector("#whyText").textContent =
+    g.why_this_direction_th || "ไม่มีคำอธิบาย";
+
+  document.querySelector("#visualBrief").textContent =
+    g.visual_brief_th || "ไม่มี Visual Brief";
+
+  document.querySelector("#previewPlatform").textContent =
+    brief.platform || "Social";
+
+  renderFactCheckNotes(g.fact_check_notes);
 
   const summary = [
-    `ประเภท: ${goal}`,
-    `หัวข้อ: ${topic || "ยังไม่ระบุ"}`,
-    `กลุ่มเป้าหมาย: ${audience}`,
-    `ตลาด: ${market}`,
-    `ช่องทาง: ${platform}`,
-    `ภาษาผลลัพธ์: ${language}`,
-    `โทน: ${tone}`,
-    `โหมดภาพ: ${visualMode}`
+    `ประเภท: ${brief.content_type || "—"}`,
+    `หัวข้อ: ${brief.topic || "—"}`,
+    `กลุ่มเป้าหมาย: ${brief.audience || "—"}`,
+    `ตลาด: ${brief.market || "—"}`,
+    `ช่องทาง: ${brief.platform || "—"}`,
+    `ภาษา: ${brief.language || "—"}`,
+    `โทน: ${brief.tone || "—"}`
   ].join(" · ");
-  document.querySelector("#briefSummary").textContent = summary;
-  document.querySelector("#previewPlatform").textContent = platform;
 
-  if(goal === "Academic Calendar"){
-    document.querySelector("#mockHook").textContent = "Save these important academic dates.";
-    document.querySelector("#mockCaption").textContent =
-      `${topic || "Academic Calendar"} — Please check the important dates below and plan your semester in advance. ${facts || "Add verified dates before publishing."} ${cta || "Save this post for later."}`;
-    document.querySelector("#mockHashtags").textContent = "#SPUInternational #AcademicCalendar #StudentUpdate";
-    document.querySelector("#visualLabel").innerHTML = "ACADEMIC CALENDAR<br><strong>IMPORTANT DATES</strong>";
-    document.querySelector("#whyText").textContent =
-      "ใช้โครงสร้างที่ชัดและตรงประเด็น เพราะเป็นข้อมูลกำหนดการที่ต้องอ่านง่ายและลดความคลาดเคลื่อน ไม่เน้นภาษาการตลาดมากเกินไป";
-    document.querySelector("#visualBrief").textContent =
-      `${visualDirection || "Infographic 4:5 พร้อม Timeline แยกวันสำคัญ"} · ใช้เฉพาะวันที่ที่ได้รับการยืนยันแล้ว · ห้ามเปลี่ยนตัวเลขหรือวัน`;
-  } else {
-    document.querySelector("#mockHook").textContent = topic ? topic : "Build your future beyond borders.";
-    document.querySelector("#mockCaption").textContent =
-      `${objective || "Create a clear international-facing message."} ${facts || ""} ${cta || ""}`.trim();
-    document.querySelector("#mockHashtags").textContent = "#SPUInternational #StudyInBangkok #GlobalEducation";
-    document.querySelector("#visualLabel").innerHTML = "SPU INTERNATIONAL<br><strong>GLOBAL EXPERIENCE</strong>";
-    document.querySelector("#whyText").textContent =
-      "ระบบจะใช้ข้อมูลจริงของ SPU, Pattern จากคู่เทียบ และเงื่อนไขของ Brief เพื่อเลือกโครงสร้างข้อความที่เหมาะกับกลุ่มเป้าหมาย";
-    document.querySelector("#visualBrief").textContent =
-      visualDirection || "ใช้ภาพจริงของ SPU International หรือสร้าง Concept Visual ตามวัตถุประสงค์ โดยไม่สร้างข้อมูลสถานที่หรือสิ่งอำนวยความสะดวกที่ไม่มีจริง";
+  document.querySelector("#briefSummary").textContent = summary;
+}
+
+async function generateContentDraft(){
+  const btn = document.querySelector("#generateMock");
+  const brief = selectedContentBrief();
+
+  if(!brief.topic){
+    alert("กรุณาระบุหัวข้อที่ต้องการสื่อสาร");
+    return;
   }
-});
+
+  const factualTypes = [
+    "Academic Calendar",
+    "Scholarships & Affordability",
+    "Events & Community"
+  ];
+
+  if(
+    factualTypes.includes(brief.content_type) &&
+    !brief.facts &&
+    !brief.pasted_data
+  ){
+    alert("คอนเทนต์ประเภทนี้ควรมีข้อมูลสำคัญหรือข้อมูลต้นทางก่อน Generate");
+    return;
+  }
+
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  btn.textContent = "กำลังวิเคราะห์และสร้าง Draft…";
+
+  try{
+    const response = await fetch(studioAIEndpoint(),{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        action:"generate_content",
+        brief
+      })
+    });
+
+    const data = await response.json().catch(()=>({}));
+
+    if(!response.ok || data?.ok !== true){
+      const detail = Array.isArray(data?.details)
+        ? `: ${data.details.join(", ")}`
+        : "";
+      throw new Error(
+        (data?.error || `HTTP ${response.status}`) + detail
+      );
+    }
+
+    renderGeneratedDraft(data);
+  }catch(err){
+    console.error("Content generation error:",err);
+    alert(`สร้าง Draft ไม่สำเร็จ: ${err?.message || String(err)}`);
+  }finally{
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
+
+document.querySelector("#generateMock")
+  ?.addEventListener("click",generateContentDraft);
+
 
 document.querySelector("#mockCompareBtn")?.addEventListener("click",()=>{
   alert("Mockup: เวอร์ชันจริงจะให้เลือกสถาบันและดึง social_posts มาเปรียบเทียบรูปแบบการสื่อสาร");

@@ -39,30 +39,49 @@ function selectedContentBrief(){
   return {
     content_type:
       document.querySelector(".goal.active")?.dataset.goal || "",
+
     topic:
       document.querySelector("#topic")?.value.trim() || "",
+
     objective:
       document.querySelector("#objective")?.value.trim() || "",
-    facts:
+
+    key_message:
+      document.querySelector("#keyMessage")?.value.trim() || "",
+
+    verified_facts:
       document.querySelector("#facts")?.value.trim() || "",
+
     pasted_data:
       document.querySelector("#pastedData")?.value.trim() || "",
+
     locked_facts:
       document.querySelector("#lockedFacts")?.value.trim() || "",
+
     audience:
       document.querySelector("#audience")?.value || "",
+
     market:
       document.querySelector("#market")?.value || "",
+
     platform:
       document.querySelector("#platform")?.value || "",
+
     language:
       document.querySelector("#language")?.value || "",
+
     tone:
       document.querySelector("#tone")?.value || "",
+
     cta:
       document.querySelector("#cta")?.value.trim() || "",
+
+    creative_direction:
+      document.querySelector("#creativeDirection")?.value.trim() || "",
+
     visual_mode:
       document.querySelector(".visual-mode.active")?.dataset.mode || "verified",
+
     visual_direction:
       document.querySelector("#visualDirection")?.value.trim() || ""
   };
@@ -121,6 +140,69 @@ function renderGeneratedDraft(data){
   document.querySelector("#briefSummary").textContent = summary;
 }
 
+
+function updateAIBriefPreview(){
+  const el = document.querySelector("#aiBriefPreview");
+  if(!el) return;
+
+  const brief = selectedContentBrief();
+
+  el.textContent = JSON.stringify({
+    content_type: brief.content_type,
+    topic: brief.topic,
+    objective: brief.objective,
+    key_message: brief.key_message,
+    audience: brief.audience,
+    market: brief.market,
+    platform: brief.platform,
+    output_language: brief.language,
+    tone: brief.tone,
+    verified_facts: brief.verified_facts,
+    locked_facts: brief.locked_facts,
+    cta: brief.cta,
+    creative_direction: brief.creative_direction,
+    visual: {
+      mode: brief.visual_mode,
+      direction: brief.visual_direction
+    }
+  }, null, 2);
+}
+
+[
+  "#topic",
+  "#objective",
+  "#keyMessage",
+  "#facts",
+  "#pastedData",
+  "#lockedFacts",
+  "#audience",
+  "#market",
+  "#platform",
+  "#language",
+  "#tone",
+  "#cta",
+  "#creativeDirection",
+  "#visualDirection"
+].forEach(selector=>{
+  document.querySelector(selector)?.addEventListener(
+    "input",
+    updateAIBriefPreview
+  );
+
+  document.querySelector(selector)?.addEventListener(
+    "change",
+    updateAIBriefPreview
+  );
+});
+
+document.querySelectorAll(".goal,.visual-mode").forEach(el=>{
+  el.addEventListener("click",()=>{
+    setTimeout(updateAIBriefPreview,0);
+  });
+});
+
+updateAIBriefPreview();
+
 async function generateContentDraft(){
   const btn = document.querySelector("#generateMock");
   const brief = selectedContentBrief();
@@ -138,7 +220,7 @@ async function generateContentDraft(){
 
   if(
     factualTypes.includes(brief.content_type) &&
-    !brief.facts &&
+    !brief.verified_facts &&
     !brief.pasted_data
   ){
     alert("คอนเทนต์ประเภทนี้ควรมีข้อมูลสำคัญหรือข้อมูลต้นทางก่อน Generate");

@@ -276,6 +276,10 @@
                 <textarea id="objective" rows="3" placeholder="เช่น แจ้งวันสำคัญให้นักศึกษานานาชาติทราบล่วงหน้าและบันทึกวันไว้"></textarea>
               </label>
               <label class="field">
+                <span>Key Message / สิ่งที่ต้องการให้ผู้รับสารเข้าใจ</span>
+                <textarea id="keyMessage" rows="3" placeholder="เช่น Plan your semester with confidence and never miss an important academic date."></textarea>
+              </label>
+              <label class="field">
                 <span>ข้อมูลสำคัญที่ต้องใช้</span>
                 <textarea id="facts" rows="7" placeholder="ตัวอย่าง:
 เปิดภาคเรียน: 10 มิ.ย. 2570
@@ -406,6 +410,11 @@ Final: 7–11 ต.ค. 2570"></textarea>
             </div>
 
             <label class="field">
+              <span>Creative Direction / แนวทางการสื่อสารและภาพ</span>
+              <textarea id="creativeDirection" rows="4" placeholder="เช่น Modern international, clean infographic, SPU pink accent, อ่านง่ายสำหรับนักศึกษาต่างชาติ"></textarea>
+            </label>
+
+            <label class="field">
               <span>รายละเอียดภาพที่ต้องการ</span>
               <textarea id="visualDirection" rows="5" placeholder="เช่น Infographic 4:5, หัวข้อ Academic Calendar 2027, มี Timeline 4 ช่วง, ใช้สี SPU, English only, ห้ามเปลี่ยนวันที่"></textarea>
             </label>
@@ -413,6 +422,11 @@ Final: 7–11 ต.ค. 2570"></textarea>
 
           <article class="studio-card">
             <div class="section-kicker">STEP 6 · ตรวจความพร้อมก่อน Generate</div>
+            <div class="result-block">
+              <h3>AI Brief ก่อน Generate</h3>
+              <pre id="aiBriefPreview" style="white-space:pre-wrap;word-break:break-word;margin:0;font-size:10px;line-height:1.55;">กรอกข้อมูลเพื่อดู Brief</pre>
+            </div>
+
             <div class="readiness-grid">
               <div class="ready-item ok">✓ มีหัวข้อ</div>
               <div class="ready-item ok">✓ กำหนดกลุ่มเป้าหมาย</div>
@@ -508,6 +522,6 @@ Final: 7–11 ต.ค. 2570"></textarea>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js?v=20260915-3"></script>
-<script src="content-studio.js?v=5"></script>
+<script src="content-studio.js?v=6"></script>
 </body>
 </html>

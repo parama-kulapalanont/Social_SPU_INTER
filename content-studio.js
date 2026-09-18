@@ -270,3 +270,137 @@ async function initLiveAnalyze(){
 }
 
 initLiveAnalyze();
+
+
+// ---------- GPT COMMUNICATION ANALYSIS ----------
+const studioAIEndpoint = () =>
+  `${String(liveCfg.SUPABASE_URL || "").replace(/\/+$/,"")}/functions/v1/social-content-studio`;
+
+function studioAIArray(elId, items){
+  const el = document.querySelector(`#${elId}`);
+  if(!el) return;
+  const arr = Array.isArray(items) ? items.filter(Boolean) : [];
+  el.innerHTML = arr.length
+    ? arr.map(x=>`<li>${liveEsc(x)}</li>`).join("")
+    : "<li>ไม่พบข้อมูลเพียงพอ</li>";
+}
+
+function studioAIChips(elId, items){
+  const el = document.querySelector(`#${elId}`);
+  if(!el) return;
+  const arr = Array.isArray(items) ? items.filter(Boolean) : [];
+  el.innerHTML = arr.length
+    ? arr.map(x=>`<span class="ai-chip">${liveEsc(x)}</span>`).join("")
+    : `<span class="ai-chip">ข้อมูลไม่เพียงพอ</span>`;
+}
+
+function renderCommunicationAI(result){
+  const a = result?.analysis || {};
+  const profile = a?.spu_profile || {};
+  const intl = profile?.international_fit || {};
+
+  document.querySelector("#aiSummary").textContent =
+    a.summary_th || "ไม่มีบทสรุป";
+
+  studioAIChips("aiThemes", profile.themes);
+  studioAIChips("aiTone", profile.tone);
+  studioAIArray("aiStructure", profile.message_structure);
+  studioAIArray("aiCTA", profile.cta_patterns);
+
+  document.querySelector("#aiInternationalAssessment").textContent =
+    intl.assessment || "ข้อมูลไม่เพียงพอ";
+  studioAIArray("aiInternationalReasons", intl.reasons);
+  studioAIArray("aiKeep", a.what_to_keep);
+  studioAIArray("aiChange", a.what_to_change);
+  studioAIArray("aiLimitations", a.limitations);
+
+  const peerEl = document.querySelector("#aiPeerComparison");
+  const peers = Array.isArray(a.peer_comparison) ? a.peer_comparison : [];
+  peerEl.innerHTML = peers.length
+    ? peers.map(x=>`
+      <div class="ai-peer-item">
+        <b>${liveEsc(x.institution_code || "Peer")}</b>
+        ${(x.observed_patterns||[]).map(v=>`<span>• ${liveEsc(v)}</span>`).join("")}
+        ${(x.differences_from_spu||[]).map(v=>`<span><strong>ต่างจาก SPU:</strong> ${liveEsc(v)}</span>`).join("")}
+      </div>`).join("")
+    : `<div class="loading-card">ไม่พบข้อมูลคู่เทียบเพียงพอ</div>`;
+
+  const oppEl = document.querySelector("#aiOpportunities");
+  const opps = Array.isArray(a.opportunities) ? a.opportunities : [];
+  oppEl.innerHTML = opps.length
+    ? opps.map(x=>`
+      <div class="ai-opportunity">
+        <b>${liveEsc(x.title || "Opportunity")}</b>
+        <p>${liveEsc(x.rationale || "")}</p>
+        <em>แนวทาง: ${liveEsc(x.action || "")}</em>
+      </div>`).join("")
+    : `<div class="loading-card">ยังไม่มีข้อเสนอแนะ</div>`;
+
+  const evidenceEl = document.querySelector("#aiEvidence");
+  const evidence = Array.isArray(a.evidence) ? a.evidence : [];
+  evidenceEl.innerHTML = evidence.length
+    ? evidence.map(x=>`
+      <div class="ai-evidence-item">
+        <b>${liveEsc(x.institution_code || "")}</b>
+        <span>${liveEsc(x.note || "")}</span>
+        ${x.post_url ? `<a href="${liveEsc(x.post_url)}" target="_blank" rel="noopener noreferrer">ดูโพสต์ ↗</a>` : ""}
+      </div>`).join("")
+    : `<div class="loading-card">AI ไม่ได้อ้างอิง Post URL เพิ่มเติม</div>`;
+
+  document.querySelector("#communicationAIOutput").hidden = false;
+}
+
+async function runCommunicationAI(){
+  const btn = document.querySelector("#runCommunicationAI");
+  const status = document.querySelector("#communicationAIStatus");
+
+  if(!liveCfg.SUPABASE_URL){
+    status.className = "ai-analysis-status error";
+    status.textContent = "ไม่พบ SUPABASE_URL ใน config.js";
+    return;
+  }
+
+  const payload = {
+    action: "analyze_communication",
+    filters: {
+      peer: document.querySelector("#peerFilter")?.value || "ALL",
+      platform: document.querySelector("#analysisPlatform")?.value || "all",
+      period: document.querySelector("#analysisPeriod")?.value || "all"
+    }
+  };
+
+  btn.disabled = true;
+  btn.textContent = "กำลังวิเคราะห์…";
+  status.className = "ai-analysis-status loading";
+  status.textContent = "GPT กำลังอ่านตัวอย่าง Caption และ Pattern การสื่อสารจากข้อมูลจริง…";
+
+  try{
+    const response = await fetch(studioAIEndpoint(),{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(payload)
+    });
+
+    const data = await response.json().catch(()=>({}));
+
+    if(!response.ok || data?.ok !== true){
+      throw new Error(data?.error || `HTTP ${response.status}`);
+    }
+
+    renderCommunicationAI(data);
+    const scope = data?.data_scope || {};
+    status.className = "ai-analysis-status success";
+    status.textContent =
+      `วิเคราะห์สำเร็จ · SPU ${liveFmt(scope.spu_posts || 0)} โพสต์ · คู่เทียบ ${liveFmt(scope.peer_posts || 0)} โพสต์`;
+  }catch(err){
+    console.error("Communication AI error:",err);
+    status.className = "ai-analysis-status error";
+    status.textContent = `วิเคราะห์ไม่สำเร็จ: ${err?.message || String(err)}`;
+  }finally{
+    btn.disabled = false;
+    btn.textContent = "✦ วิเคราะห์ด้วย GPT";
+  }
+}
+
+document.querySelector("#runCommunicationAI")
+  ?.addEventListener("click",runCommunicationAI);

@@ -37,50 +37,123 @@
     </div>
 
     <section class="studio-panel active" id="tab-analyze">
+      <article class="studio-card live-data-banner">
+        <div>
+          <div class="section-kicker">ข้อมูลจริงจาก Social Intelligence</div>
+          <h2>วิเคราะห์ข้อมูลโพสต์ที่เก็บอยู่ในระบบ</h2>
+          <p>ส่วนนี้อ่านข้อมูลจาก Supabase ชุดเดียวกับ Dashboard เดิม ยังไม่ใช้ GPT วิเคราะห์เชิงภาษาในเวอร์ชันนี้</p>
+        </div>
+        <div class="live-status" id="liveStatus">กำลังโหลดข้อมูล…</div>
+      </article>
+
+      <div class="analyze-toolbar">
+        <label class="field compact-field">
+          <span>เปรียบเทียบ SPU กับ</span>
+          <select id="peerFilter">
+            <option value="ALL">ทุกสถาบัน</option>
+          </select>
+        </label>
+        <label class="field compact-field">
+          <span>Platform</span>
+          <select id="analysisPlatform">
+            <option value="all">Facebook + Instagram</option>
+            <option value="facebook">Facebook</option>
+            <option value="instagram">Instagram</option>
+          </select>
+        </label>
+        <label class="field compact-field">
+          <span>ช่วงข้อมูล</span>
+          <select id="analysisPeriod">
+            <option value="all">ข้อมูลทั้งหมด</option>
+            <option value="30">30 วันล่าสุด</option>
+            <option value="90">90 วันล่าสุด</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="real-kpi-grid">
+        <article class="real-kpi">
+          <span>โพสต์ SPU</span>
+          <b id="spuPostCount">—</b>
+          <small id="spuPlatformMix">—</small>
+        </article>
+        <article class="real-kpi">
+          <span>Interactions / Post</span>
+          <b id="spuInteractionAvg">—</b>
+          <small>Likes + Comments + Shares</small>
+        </article>
+        <article class="real-kpi">
+          <span>ความยาว Caption เฉลี่ย</span>
+          <b id="spuCaptionAvg">—</b>
+          <small>ตัวอักษรต่อโพสต์</small>
+        </article>
+        <article class="real-kpi">
+          <span>โพสต์ที่มี CTA</span>
+          <b id="spuCtaRate">—</b>
+          <small>ตรวจจากข้อความ Caption</small>
+        </article>
+      </div>
+
       <div class="studio-grid two">
         <article class="studio-card">
-          <div class="section-kicker">ภาพรวมการสื่อสาร</div>
-          <h2>SPU International กำลังสื่อสารแบบไหน</h2>
-          <div class="insight-hero">
-            <strong>สัญญาณปัจจุบัน</strong>
-            <p>คอนเทนต์ที่เด่นมักสื่อสารตรง เข้าใจง่าย ใช้ประโยชน์ต่อนักศึกษาเป็นแกนหลัก และเชื่อมโยงกับประสบการณ์จริงได้ดี</p>
+          <div class="section-kicker">SPU COMMUNICATION SIGNALS</div>
+          <h2>รูปแบบการสื่อสารที่อ่านได้จากข้อมูลจริง</h2>
+          <div class="signal-list">
+            <div><span>จำนวน Hashtag เฉลี่ย</span><b id="spuHashtagAvg">—</b></div>
+            <div><span>Caption ภาษาอังกฤษเป็นหลัก</span><b id="spuEnglishRate">—</b></div>
+            <div><span>โพสต์ที่มีคำเชิญชวน / CTA</span><b id="spuCtaRate2">—</b></div>
+            <div><span>Platform ที่มีโพสต์มากกว่า</span><b id="spuStrongPlatform">—</b></div>
           </div>
-          <div class="metric-row">
-            <div class="metric-box"><span>ธีมที่ใช้บ่อย</span><b>Admissions & Campus Life</b></div>
-            <div class="metric-box"><span>โทนหลัก</span><b>Friendly / Aspirational</b></div>
-            <div class="metric-box"><span>รูปแบบเด่น</span><b>Student Story</b></div>
-          </div>
+          <div class="analysis-note">หมายเหตุ: จุดนี้เป็นการอ่าน Pattern แบบกฎพื้นฐานจาก Caption จริง ยังไม่ใช่การตีความเชิงกลยุทธ์โดย GPT</div>
         </article>
 
         <article class="studio-card">
-          <div class="section-kicker">เปรียบเทียบคู่เทียบ</div>
-          <h2>สถาบันอื่นสื่อสารต่างจากเราอย่างไร</h2>
-          <div class="peer-list">
-            <div><b>BU</b><span>เน้น Lifestyle และ Visual Hook ชัดเจน</span></div>
-            <div><b>DPU</b><span>ใช้ Achievement และ Event เป็นจุดขาย</span></div>
-            <div><b>STIU</b><span>โทนนานาชาติสม่ำเสมอและ Positioning ชัด</span></div>
+          <div class="section-kicker">SPU VS PEERS</div>
+          <h2>เปรียบเทียบตัวเลขการสื่อสาร</h2>
+          <div class="comparison-table-wrap">
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th>กลุ่ม</th>
+                  <th>Posts</th>
+                  <th>Interaction/Post</th>
+                  <th>Caption Avg.</th>
+                  <th>CTA</th>
+                </tr>
+              </thead>
+              <tbody id="comparisonBody">
+                <tr><td colspan="5">กำลังโหลด…</td></tr>
+              </tbody>
+            </table>
           </div>
-          <button class="btn-lite" id="mockCompareBtn">เลือกสถาบันเพื่อเปรียบเทียบ</button>
         </article>
       </div>
 
-      <div class="studio-grid three">
-        <article class="studio-card mini">
-          <div class="section-kicker">โครงสร้างข้อความ</div>
-          <h3>รูปแบบของ SPU</h3>
-          <p>Hook สั้น → ประโยชน์ต่อนักศึกษา → รายละเอียด → CTA / Hashtag</p>
-        </article>
-        <article class="studio-card mini">
-          <div class="section-kicker">มุมมองนานาชาติ</div>
-          <h3>โอกาสที่ควรเพิ่ม</h3>
-          <p>Career outcome, Bangkok experience, multicultural environment และ global relevance</p>
-        </article>
-        <article class="studio-card mini">
-          <div class="section-kicker">CTA</div>
-          <h3>ข้อเสนอแนะ</h3>
-          <p>ใช้ CTA ที่ชัดเจน เช่น Apply now, Explore Programs, Meet Us, Save the Date</p>
-        </article>
-      </div>
+      <article class="studio-card">
+        <div class="section-row">
+          <div>
+            <div class="section-kicker">TOP SPU POSTS</div>
+            <h2>โพสต์ SPU ที่มี Engagement สูงในข้อมูลที่เลือก</h2>
+          </div>
+          <span class="data-count" id="spuTopCount">—</span>
+        </div>
+        <div class="real-post-grid" id="spuTopPosts">
+          <div class="loading-card">กำลังโหลดข้อมูล…</div>
+        </div>
+      </article>
+
+      <article class="studio-card">
+        <div class="section-row">
+          <div>
+            <div class="section-kicker">PEER EXAMPLES</div>
+            <h2>ตัวอย่างโพสต์จากสถาบันเปรียบเทียบ</h2>
+          </div>
+          <span class="data-count" id="peerTopCount">—</span>
+        </div>
+        <div class="real-post-grid" id="peerTopPosts">
+          <div class="loading-card">กำลังโหลดข้อมูล…</div>
+        </div>
+      </article>
     </section>
 
     <section class="studio-panel" id="tab-create">
@@ -349,6 +422,8 @@ Final: 7–11 ต.ค. 2570"></textarea>
     </section>
   </main>
 </div>
-<script src="content-studio.js?v=2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js?v=20260915-3"></script>
+<script src="content-studio.js?v=3"></script>
 </body>
 </html>

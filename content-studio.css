@@ -404,3 +404,82 @@ button.is-error{box-shadow:0 0 0 3px rgba(239,68,68,.14)!important;border-color:
   .executive-analyze-filter,.executive-kpis,.executive-ai-columns,.executive-post-grid{grid-template-columns:1fr}
   .poster-facts{grid-template-columns:1fr}
 }
+
+
+/* ===== History interaction stability fix v11 =====
+   Prevent thumbnail/hover layers from expanding over action buttons. */
+#tab-history{overflow:visible}
+.history-grid{position:relative;isolation:isolate}
+.history-card{
+  position:relative!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+  contain:paint;
+  transform:none!important;
+  z-index:0;
+}
+.history-card:hover,
+.history-card:focus-within{
+  transform:none!important;
+  z-index:1;
+}
+.history-thumb{
+  position:relative!important;
+  overflow:hidden!important;
+  z-index:0!important;
+  pointer-events:none!important;
+}
+.history-thumb img{
+  position:static!important;
+  inset:auto!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:cover!important;
+  object-position:center!important;
+  transform:none!important;
+  scale:1!important;
+  translate:none!important;
+  filter:none!important;
+  z-index:auto!important;
+  pointer-events:none!important;
+}
+.history-card:hover .history-thumb img,
+.history-card:focus-within .history-thumb img,
+.history-thumb:hover img{
+  position:static!important;
+  inset:auto!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  transform:none!important;
+  scale:1!important;
+  translate:none!important;
+  z-index:auto!important;
+}
+.history-card-body{
+  position:relative!important;
+  z-index:2!important;
+  background:#fff!important;
+}
+.history-actions{
+  position:relative!important;
+  z-index:3!important;
+  pointer-events:auto!important;
+}
+.history-actions button{
+  position:relative!important;
+  z-index:4!important;
+  pointer-events:auto!important;
+  cursor:pointer!important;
+}
+.history-card::before,
+.history-card::after,
+.history-thumb::before,
+.history-thumb::after{
+  pointer-events:none!important;
+}

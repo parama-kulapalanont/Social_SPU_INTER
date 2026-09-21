@@ -62,6 +62,34 @@ document.querySelectorAll(".source-tab").forEach(btn=>{
   });
 });
 
+function uiErrorMessage(data,status){
+  const stage=String(data?.stage||"");
+  const map={
+    "origin-blocked":"ไม่อนุญาตให้เรียกใช้งานจากหน้านี้",
+    "rate-limited":"ใช้งาน AI ถี่เกินไป กรุณารอสักครู่แล้วลองใหม่",
+    "rate-limit-check-error":"ระบบตรวจสอบโควตา AI ไม่สำเร็จ กรุณาลองใหม่",
+    "config-error":"การตั้งค่าระบบ AI ยังไม่พร้อม กรุณาติดต่อผู้ดูแลระบบ",
+    "brief-validation-error":"ข้อมูลสำหรับสร้างโพสต์ยังไม่ครบ กรุณาตรวจสอบข้อมูลที่กรอก",
+    "openai-precheck-error":"AI ไม่สามารถตรวจข้อมูลก่อนสร้างได้ กรุณาลองใหม่",
+    "openai-error":"AI ไม่สามารถสร้างข้อความได้ กรุณาลองใหม่",
+    "ai-parse-error":"ระบบอ่านผลลัพธ์จาก AI ไม่สำเร็จ กรุณาลองใหม่",
+    "image-generation-error":"ไม่สามารถสร้างภาพได้ กรุณาลองใหม่",
+    "image-upload-error":"สร้างภาพแล้ว แต่บันทึกภาพไม่สำเร็จ กรุณาลองใหม่",
+    "image-db-error":"บันทึกข้อมูลภาพไม่สำเร็จ กรุณาลองใหม่",
+    "history-query-error":"ไม่สามารถโหลดประวัติการสร้างได้",
+    "history-image-query-error":"ไม่สามารถโหลดรูปจากประวัติการสร้างได้",
+    "draft-complete":"ไม่สามารถเปิดฉบับร่างนี้ได้",
+    "save-draft-error":"บันทึกฉบับร่างไม่สำเร็จ กรุณาลองใหม่",
+    "update-draft-error":"บันทึกการแก้ไขไม่สำเร็จ กรุณาลองใหม่",
+    "delete-draft-error":"ลบรายการไม่สำเร็จ กรุณาลองใหม่"
+  };
+  if(map[stage]) return map[stage];
+  if(status===404) return "ไม่พบข้อมูลที่ต้องการ";
+  if(status===429) return "ใช้งานระบบถี่เกินไป กรุณารอสักครู่แล้วลองใหม่";
+  if(status>=500) return "ระบบทำงานไม่สำเร็จชั่วคราว กรุณาลองใหม่";
+  return "ไม่สามารถดำเนินการได้ กรุณาตรวจสอบข้อมูลแล้วลองใหม่";
+}
+
 async function api(payload){
   const response = await fetch(endpoint(),{
     method:"POST",
@@ -70,7 +98,8 @@ async function api(payload){
   });
   const data = await response.json().catch(()=>({}));
   if(!response.ok || data?.ok!==true){
-    throw new Error(data?.error || `HTTP ${response.status}`);
+    console.error("Content Studio API error",data);
+    throw new Error(uiErrorMessage(data,response.status));
   }
   return data;
 }
@@ -224,7 +253,7 @@ async function extractFileText(file){
   }
 
   if(["xlsx","xls"].includes(ext)){
-    if(!window.XLSX) throw new Error("XLSX parser not loaded");
+    if(!window.XLSX) throw new Error("ไม่สามารถเปิดตัวอ่านไฟล์ Excel ได้");
     const wb=window.XLSX.read(arrayBuffer,{type:"array"});
     return wb.SheetNames.map(name=>{
       const ws=wb.Sheets[name];
@@ -233,13 +262,13 @@ async function extractFileText(file){
   }
 
   if(ext==="docx"){
-    if(!window.mammoth) throw new Error("Word parser not loaded");
+    if(!window.mammoth) throw new Error("ไม่สามารถเปิดตัวอ่านไฟล์ Word ได้");
     const result=await window.mammoth.extractRawText({arrayBuffer});
     return result.value||"";
   }
 
   if(ext==="pdf"){
-    if(!window.pdfjsLib) throw new Error("PDF parser not loaded");
+    if(!window.pdfjsLib) throw new Error("ไม่สามารถเปิดตัวอ่านไฟล์ PDF ได้");
     const pdf=await window.pdfjsLib.getDocument({data:arrayBuffer}).promise;
     const pages=[];
     for(let i=1;i<=pdf.numPages;i++){
@@ -415,7 +444,7 @@ function renderImage(url,mode){
 }
 
 async function generateImage(){
-  if(!currentDraftId){notify("ยังไม่มี Draft สำหรับสร้างภาพ","error");return;}
+  if(!currentDraftId){notify("ยังไม่มีฉบับร่างสำหรับสร้างภาพ","error");return;}
   const btn=document.querySelector("#changeImageBtn");
   const done=markButton(btn,"busy","กำลังสร้างภาพ…");
   setPreviewLoading("กำลังสร้างภาพ…");
@@ -469,7 +498,7 @@ document.querySelector("#cancelEditBtn")?.addEventListener("click",()=>{
 });
 
 document.querySelector("#saveEditBtn")?.addEventListener("click",async()=>{
-  if(!currentDraftId){alert("ยังไม่มี Draft ที่แก้ไขได้");return;}
+  if(!currentDraftId){alert("ยังไม่มีฉบับร่างที่แก้ไขได้");return;}
   const headline=document.querySelector("#editHeadline").value.trim();
   const caption=document.querySelector("#editCaption").value.trim();
   const hashtags=document.querySelector("#editHashtags").value.split(/\s+/).filter(Boolean);
@@ -494,22 +523,22 @@ document.querySelector("#saveDraftBtn")?.addEventListener("click",async()=>{
   const done=markButton(btn,"busy","กำลังบันทึก…");
   try{
     await api({action:"save_draft",draft_id:currentDraftId});
-    setPreviewLoading("บันทึก Draft แล้ว");
+    setPreviewLoading("บันทึกฉบับร่างแล้ว");
     await loadHistory();
-    done("done","บันทึก Draft แล้ว");
-  }catch(err){done("error",`บันทึก Draft ไม่สำเร็จ: ${err.message||err}`);}
+    done("done","บันทึกฉบับร่างแล้ว");
+  }catch(err){done("error",`บันทึกฉบับร่างไม่สำเร็จ: ${err.message||err}`);}
 });
 
 document.querySelector("#copyCaptionBtn")?.addEventListener("click",async()=>{
   const btn=document.querySelector("#copyCaptionBtn");
   const g=currentDraft?.generation||{};
   const text=[g.caption,(g.hashtags||[]).join(" ")].filter(Boolean).join("\n\n");
-  if(!text){notify("ยังไม่มี Caption","error");return;}
+  if(!text){notify("ยังไม่มีข้อความโพสต์","error");return;}
   const done=markButton(btn,"busy","กำลังคัดลอก…");
   try{
     await navigator.clipboard.writeText(text);
-    setPreviewLoading("คัดลอก Caption แล้ว");
-    done("done","คัดลอก Caption แล้ว");
+    setPreviewLoading("คัดลอกข้อความแล้ว");
+    done("done","คัดลอกข้อความแล้ว");
   }catch(err){done("error","คัดลอกไม่สำเร็จ");}
 });
 
@@ -594,6 +623,15 @@ function bytesLabel(bytes){
   return `${(n/1024/1024).toFixed(1)} MB`;
 }
 
+function historyStatusLabel(value){
+  const map={
+    generated:"สร้างแล้ว",
+    draft:"ฉบับร่าง",
+    final:"พร้อมเผยแพร่"
+  };
+  return map[value]||"สร้างแล้ว";
+}
+
 function historyCard(item){
   const g=item.generation||{};
   const img=item.latest_image?.signed_url||"";
@@ -603,8 +641,8 @@ function historyCard(item){
       ${img?`<img src="${esc(img)}" alt="">`:`ไม่มีรูป`}
     </div>
     <div class="history-card-body">
-      <span class="status-chip">${esc(item.status||"generated")}</span>
-      <h3>${esc(item.topic||"Untitled")}</h3>
+      <span class="status-chip">${esc(historyStatusLabel(item.status))}</span>
+      <h3>${esc(item.topic||"ไม่มีชื่อเรื่อง")}</h3>
       <div class="history-meta">${esc(date)} · ${esc(item.platform||"")} · ${esc(item.language||"")}</div>
       <div class="history-caption">${esc(g.caption||"")}</div>
       <div class="history-actions">
@@ -689,7 +727,7 @@ document.querySelector("#historyGrid")?.addEventListener("click",async e=>{
       document.querySelector("#whyText").textContent=currentDraft.generation?.why_this_direction_th||"—";
       renderImage(currentDraft.latest_image?.signed_url,currentDraft.latest_image?.generation_mode||inferLocalMode(currentDraft.input_payload));
       switchTab("create");
-    }catch(err){alert(`เปิด Draft ไม่สำเร็จ: ${err.message||err}`);}
+    }catch(err){alert(`เปิดฉบับร่างไม่สำเร็จ: ${err.message||err}`);}
   }
 });
 

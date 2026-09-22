@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>สตูดิโอสร้างคอนเทนต์นานาชาติ | SPU Social Intelligence</title>
 <link rel="stylesheet" href="dashboard-v2.css?v=6">
-<link rel="stylesheet" href="content-studio.css?v=13">
+<link rel="stylesheet" href="content-studio.css?v=14">
 </head>
 <body>
 <div class="app">
@@ -132,7 +132,7 @@
         <div>
           <div class="section-kicker">CREATE WITH AI</div>
           <h2>สร้างโพสต์ Social สำหรับหลักสูตรนานาชาติ</h2>
-          <p>เลือก Template หรือเริ่มแบบกำหนดเอง กรอกเฉพาะข้อมูลสำคัญ ที่เหลือให้ AI จัดโครงและออกแบบให้</p>
+          <p>กรอกเฉพาะข้อมูลสำคัญ ระบบคิดกลยุทธ์ PR เขียนข้อความ และสร้างภาพ 1 ครั้งใน flow เดียว</p>
         </div>
         <div class="create-mode-switch">
           <button type="button" class="create-mode active" data-create-mode="quick">สร้างเร็ว</button>
@@ -244,14 +244,14 @@
 
           <article class="studio-card ai-advice-card" id="precheckCard" hidden>
             <div class="section-row">
-              <div><div class="section-kicker">AI ตรวจความพร้อม</div><h2>ข้อมูลที่ควรยืนยันก่อนสร้าง</h2></div>
+              <div><div class="section-kicker">ต้องยืนยันก่อนสร้าง</div><h2>ข้อมูลสำคัญที่ยังขาด</h2></div>
               <span class="status-pill">สูงสุด 3 ข้อ</span>
             </div>
             <div id="precheckQuestions"></div>
             <div id="precheckAdvice"></div>
             <div class="precheck-actions">
               <button class="btn-lite" id="editInputBtn" type="button">กลับไปแก้ข้อมูล</button>
-              <button class="primary-action" id="generateMock" type="button">ใช้ข้อมูลนี้และสร้าง</button>
+              <button class="primary-action" id="generateMock" type="button">ยืนยันข้อมูลและสร้าง</button>
             </div>
           </article>
         </div>
@@ -262,22 +262,11 @@
             <span class="status-pill" id="previewStatus">รอสร้าง</span>
           </div>
 
-          <div class="quality-gate" id="qualityGate">
-            <span class="quality-dot"></span>
-            <div><b>Quality Gate</b><small id="qualityGateText">ระบบจะตรวจภาษา ข้อมูล และคุณภาพภาพก่อนแสดงผล</small></div>
-          </div>
-
           <div class="post-preview-visual v13-main-visual" id="postPreviewVisual">
             <div class="preview-placeholder">
-              <div>SPUIC</div><strong>ภาพที่ AI สร้างจะแสดงตรงนี้</strong><span>Art Direction + Brand DNA + Quality Check</span>
+              <div>SPUIC</div><strong>ภาพที่ AI สร้างจะแสดงตรงนี้</strong><span>1 PR Strategy + 1 Image Generation ต่อรอบ</span>
             </div>
           </div>
-
-          <div class="variant-wrap">
-            <div class="variant-title">ตัวเลือกภาพ</div>
-            <div class="image-variants" id="imageVariants">
-              <div class="variant-empty">หลังสร้าง ระบบจะแสดง 3 แนวทางที่แตกต่างกัน</div>
-            </div>
           </div>
 
           <div class="post-preview-copy">
@@ -290,16 +279,10 @@
             <div class="result-block compact-result"><h3>เหตุผลที่แนะนำแนวทางนี้</h3><p id="whyText">—</p></div>
           </div>
 
-          <div class="quick-edit-row" id="quickEditRow">
-            <button type="button" data-quick-edit="shorter">สั้นลง</button>
-            <button type="button" data-quick-edit="formal">ทางการขึ้น</button>
-            <button type="button" data-quick-edit="cta">เพิ่ม CTA</button>
-          </div>
-
           <div class="preview-actions action-grid">
-            <button type="button" id="regenerateBtn">สร้างใหม่</button>
+            <button type="button" id="regenerateBtn">สร้างโพสต์ใหม่</button>
             <button type="button" id="editTextBtn">แก้ไขข้อความ</button>
-            <button type="button" id="changeImageBtn">เปลี่ยนภาพนี้</button>
+            <button type="button" id="changeImageBtn">สร้างภาพใหม่ 1 ภาพ</button>
             <button type="button" id="saveDraftBtn">บันทึกฉบับร่าง</button>
             <button type="button" id="copyCaptionBtn">คัดลอกข้อความ</button>
             <button type="button" id="downloadImageBtn" class="accent">ดาวน์โหลดภาพ</button>
@@ -357,7 +340,7 @@
 <script src="config.js?v=20260915-3"></script>
 <script src="content-studio-presets.js?v=13"></script>
 <script src="content-studio-brand.js?v=13"></script>
-<script src="content-studio.js?v=13"></script>
+<script src="content-studio.js?v=14"></script>
 <div id="studioToast" class="studio-toast" aria-live="polite"></div>
 </body>
 </html>

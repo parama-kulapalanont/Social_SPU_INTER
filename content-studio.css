@@ -546,3 +546,24 @@ button.is-error{box-shadow:0 0 0 3px rgba(239,68,68,.14)!important;border-color:
 @media(max-width:1280px){.template-grid{grid-template-columns:repeat(3,1fr)}.create-v13-layout{grid-template-columns:1fr 1fr}}
 @media(max-width:960px){.create-v13-layout{grid-template-columns:1fr}.v13-preview{position:static}.template-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:640px){.create-v13-head{align-items:flex-start;flex-direction:column}.template-grid{grid-template-columns:1fr 1fr}.advanced-grid{grid-template-columns:1fr}.image-variants{grid-template-columns:repeat(3,1fr)}}
+
+
+/* ==========================================================
+   Content Studio v14 LEAN
+   Normal create = 1 text model call + 1 image generation.
+   ========================================================== */
+.v13-main-visual{min-height:440px}
+.v13-main-visual>img{width:100%;height:auto;max-height:760px;object-fit:contain;display:block;background:#f6f7fb}
+.create-v13-head::after{
+  content:"LEAN FLOW · 1 TEXT + 1 IMAGE";
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.08em;
+  color:#667085;
+  border:1px solid #e5e7eb;
+  background:#fff;
+  padding:6px 8px;
+  border-radius:999px;
+  white-space:nowrap;
+}
+@media(max-width:720px){.create-v13-head::after{display:none}}

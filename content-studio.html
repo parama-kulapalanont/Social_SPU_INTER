@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>สตูดิโอสร้างคอนเทนต์นานาชาติ | SPU Social Intelligence</title>
 <link rel="stylesheet" href="dashboard-v2.css?v=6">
-<link rel="stylesheet" href="content-studio.css?v=11">
+<link rel="stylesheet" href="content-studio.css?v=13">
 </head>
 <body>
 <div class="app">
@@ -126,44 +126,70 @@
       </article>
     </section>
 
+    
     <section class="studio-panel" id="tab-create">
-      <div class="simple-create-layout">
-        <div class="simple-create-form">
+      <div class="create-v13-head studio-card">
+        <div>
+          <div class="section-kicker">CREATE WITH AI</div>
+          <h2>สร้างโพสต์ Social สำหรับหลักสูตรนานาชาติ</h2>
+          <p>เลือก Template หรือเริ่มแบบกำหนดเอง กรอกเฉพาะข้อมูลสำคัญ ที่เหลือให้ AI จัดโครงและออกแบบให้</p>
+        </div>
+        <div class="create-mode-switch">
+          <button type="button" class="create-mode active" data-create-mode="quick">สร้างเร็ว</button>
+          <button type="button" class="create-mode" data-create-mode="custom">กำหนดเอง</button>
+        </div>
+      </div>
+
+      <article class="studio-card template-card-shell" id="templateShell">
+        <div class="section-row">
+          <div>
+            <div class="section-kicker">เลือกประเภทโพสต์</div>
+            <h2>เริ่มจาก Template</h2>
+          </div>
+          <span class="template-hint">กด 1 ครั้ง ระบบจะเตรียมช่องสำคัญให้</span>
+        </div>
+        <div class="template-grid" id="templateGrid"></div>
+      </article>
+
+      <div class="create-v13-layout">
+        <div class="create-v13-form">
           <article class="studio-card create-card">
-            <div class="step-title"><span>1</span><div><h2>เรื่องที่ต้องการสื่อสาร</h2><p>บอก AI สั้น ๆ ว่าต้องการทำโพสต์เรื่องอะไร</p></div></div>
-            <textarea id="topic" rows="3" placeholder="เช่น SPUIC Academic Calendar Highlights — Semester 1/2027"></textarea>
-          </article>
+            <div class="step-title"><span>1</span><div><h2>กรอกข้อมูลที่จำเป็น</h2><p id="templateSummary">เลือก Template แล้วกรอกข้อมูลสำคัญเท่าที่มี</p></div></div>
 
-          <article class="studio-card create-card">
-            <div class="step-title"><span>2</span><div><h2>ข้อมูลประกอบ</h2><p>พิมพ์ วางข้อความ หรืออัปโหลดเอกสาร</p></div></div>
+            <label class="v13-field">
+              <span>หัวข้อโพสต์ <b>*</b></span>
+              <input id="topic" placeholder="เช่น SPUIC Global Career & Internship Week 2027">
+            </label>
 
-            <div class="source-tabs">
-              <button class="source-tab active" data-source="type">พิมพ์ข้อมูลเอง</button>
-              <button class="source-tab" data-source="paste">วางข้อความ</button>
-              <button class="source-tab" data-source="upload">อัปโหลดไฟล์</button>
-            </div>
+            <div id="templateFields" class="template-fields"></div>
 
-            <div class="source-panel active" id="source-type">
-              <textarea id="facts" rows="8" placeholder="ใส่วันสำคัญ รายละเอียดกิจกรรม ข้อมูลหลักสูตร หรือข้อมูลที่ต้องใช้"></textarea>
-            </div>
-
-            <div class="source-panel" id="source-paste">
-              <textarea id="pastedData" rows="8" placeholder="วางข้อความ ตาราง หรือข้อมูลจากเอกสาร"></textarea>
-            </div>
-
-            <div class="source-panel" id="source-upload">
-              <div class="upload-box">
-                <input id="sourceFile" type="file" accept=".pdf,.docx,.xlsx,.xls,.csv,.txt,.json" hidden>
-                <b>อัปโหลดไฟล์อ้างอิง</b>
-                <p>PDF · Word · Excel · CSV · TXT</p>
-                <button class="btn-lite" id="chooseFileBtn" type="button">เลือกไฟล์</button>
-                <small id="fileStatus">ระบบจะอ่านข้อความจากไฟล์ให้อัตโนมัติ</small>
+            <details class="source-details">
+              <summary>เพิ่มข้อมูลอ้างอิง / เอกสาร (ถ้ามี)</summary>
+              <div class="source-tabs">
+                <button class="source-tab active" data-source="type" type="button">พิมพ์เพิ่ม</button>
+                <button class="source-tab" data-source="paste" type="button">วางข้อความ</button>
+                <button class="source-tab" data-source="upload" type="button">อัปโหลดไฟล์</button>
               </div>
-            </div>
+              <div class="source-panel active" id="source-type">
+                <textarea id="facts" rows="5" placeholder="ข้อมูลเพิ่มเติมที่ต้องตรงตามต้นฉบับ"></textarea>
+              </div>
+              <div class="source-panel" id="source-paste">
+                <textarea id="pastedData" rows="5" placeholder="วางข้อความ ตาราง หรือข้อมูลจากเอกสาร"></textarea>
+              </div>
+              <div class="source-panel" id="source-upload">
+                <div class="upload-box">
+                  <input id="sourceFile" type="file" accept=".pdf,.docx,.xlsx,.xls,.csv,.txt,.json" hidden>
+                  <b>อัปโหลดไฟล์อ้างอิง</b>
+                  <p>PDF · Word · Excel · CSV · TXT</p>
+                  <button class="btn-lite" id="chooseFileBtn" type="button">เลือกไฟล์</button>
+                  <small id="fileStatus">ระบบจะอ่านข้อความจากไฟล์ให้อัตโนมัติ</small>
+                </div>
+              </div>
+            </details>
           </article>
 
           <article class="studio-card create-card">
-            <div class="step-title"><span>3</span><div><h2>ตั้งค่าการสื่อสาร</h2><p>เลือกเท่าที่จำเป็น ที่เหลือให้ AI ช่วยคิด</p></div></div>
+            <div class="step-title"><span>2</span><div><h2>ตั้งค่าการสื่อสาร</h2><p>เลือกเท่าที่จำเป็น ระบบจะจัด Art Direction ให้อัตโนมัติ</p></div></div>
             <div class="simple-options-grid">
               <label><span>กลุ่มเป้าหมาย</span>
                 <select id="audience">
@@ -175,7 +201,7 @@
                   <option>พันธมิตรองค์กร</option>
                 </select>
               </label>
-              <label><span>ภาษา</span>
+              <label><span>ภาษาโพสต์</span>
                 <select id="language">
                   <option>English</option>
                   <option>English + Thai</option>
@@ -202,30 +228,55 @@
                 </select>
               </label>
             </div>
+
+            <details class="advanced-create">
+              <summary>ตัวเลือกเพิ่มเติม</summary>
+              <div class="advanced-grid">
+                <label class="v13-field"><span>CTA ที่ต้องการ</span><input id="ctaInput" placeholder="ปล่อยว่างได้ ให้ AI แนะนำ"></label>
+                <label class="v13-field"><span>ภาพอ้างอิงแบรนด์</span>
+                  <select id="brandAssetSelect"><option value="">ให้ระบบเลือกอัตโนมัติ</option></select>
+                </label>
+              </div>
+            </details>
+
             <button class="primary-action main-create-btn" id="precheckContent">✦ ให้ AI ช่วยสร้างโพสต์</button>
           </article>
 
           <article class="studio-card ai-advice-card" id="precheckCard" hidden>
-            <div class="section-kicker">AI แนะนำก่อนสร้าง</div>
-            <h2>ข้อมูลที่ควรยืนยัน</h2>
+            <div class="section-row">
+              <div><div class="section-kicker">AI ตรวจความพร้อม</div><h2>ข้อมูลที่ควรยืนยันก่อนสร้าง</h2></div>
+              <span class="status-pill">สูงสุด 3 ข้อ</span>
+            </div>
             <div id="precheckQuestions"></div>
             <div id="precheckAdvice"></div>
             <div class="precheck-actions">
               <button class="btn-lite" id="editInputBtn" type="button">กลับไปแก้ข้อมูล</button>
-              <button class="primary-action" id="generateMock" type="button">สร้างตามคำแนะนำ</button>
+              <button class="primary-action" id="generateMock" type="button">ใช้ข้อมูลนี้และสร้าง</button>
             </div>
           </article>
         </div>
 
-        <aside class="studio-card output-preview-card">
+        <aside class="studio-card output-preview-card v13-preview">
           <div class="section-row">
-            <div><div class="section-kicker">ผลลัพธ์</div><h2>ตัวอย่างโพสต์จาก AI</h2></div>
-            <span class="status-pill" id="previewStatus">ตัวอย่าง</span>
+            <div><div class="section-kicker">ผลลัพธ์</div><h2>AI Post Preview</h2></div>
+            <span class="status-pill" id="previewStatus">รอสร้าง</span>
           </div>
 
-          <div class="post-preview-visual" id="postPreviewVisual">
+          <div class="quality-gate" id="qualityGate">
+            <span class="quality-dot"></span>
+            <div><b>Quality Gate</b><small id="qualityGateText">ระบบจะตรวจภาษา ข้อมูล และคุณภาพภาพก่อนแสดงผล</small></div>
+          </div>
+
+          <div class="post-preview-visual v13-main-visual" id="postPreviewVisual">
             <div class="preview-placeholder">
-              <div>SPUIC</div><strong>ภาพที่ AI สร้างจะแสดงตรงนี้</strong><span>หลัง Generate สำเร็จ</span>
+              <div>SPUIC</div><strong>ภาพที่ AI สร้างจะแสดงตรงนี้</strong><span>Art Direction + Brand DNA + Quality Check</span>
+            </div>
+          </div>
+
+          <div class="variant-wrap">
+            <div class="variant-title">ตัวเลือกภาพ</div>
+            <div class="image-variants" id="imageVariants">
+              <div class="variant-empty">หลังสร้าง ระบบจะแสดง 3 แนวทางที่แตกต่างกัน</div>
             </div>
           </div>
 
@@ -239,10 +290,16 @@
             <div class="result-block compact-result"><h3>เหตุผลที่แนะนำแนวทางนี้</h3><p id="whyText">—</p></div>
           </div>
 
+          <div class="quick-edit-row" id="quickEditRow">
+            <button type="button" data-quick-edit="shorter">สั้นลง</button>
+            <button type="button" data-quick-edit="formal">ทางการขึ้น</button>
+            <button type="button" data-quick-edit="cta">เพิ่ม CTA</button>
+          </div>
+
           <div class="preview-actions action-grid">
             <button type="button" id="regenerateBtn">สร้างใหม่</button>
             <button type="button" id="editTextBtn">แก้ไขข้อความ</button>
-            <button type="button" id="changeImageBtn">เปลี่ยนภาพ</button>
+            <button type="button" id="changeImageBtn">เปลี่ยนภาพนี้</button>
             <button type="button" id="saveDraftBtn">บันทึกฉบับร่าง</button>
             <button type="button" id="copyCaptionBtn">คัดลอกข้อความ</button>
             <button type="button" id="downloadImageBtn" class="accent">ดาวน์โหลดภาพ</button>
@@ -298,7 +355,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="config.js?v=20260915-3"></script>
-<script src="content-studio.js?v=12"></script>
+<script src="content-studio-presets.js?v=13"></script>
+<script src="content-studio-brand.js?v=13"></script>
+<script src="content-studio.js?v=13"></script>
 <div id="studioToast" class="studio-toast" aria-live="polite"></div>
 </body>
 </html>

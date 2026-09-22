@@ -11,6 +11,11 @@ let currentDraft = null;
 let currentImageUrl = null;
 let currentImageMode = null;
 let lastPrecheck = null;
+let currentTemplateKey = "career";
+let currentCreateMode = "quick";
+let currentImageVariants = [];
+let selectedVariantKey = "recommended";
+let brandAssets = [];
 
 const fmt = n => new Intl.NumberFormat("en-US").format(Number(n||0));
 const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
@@ -53,14 +58,17 @@ function switchTab(name){
 
 tabs.forEach(btn=>btn.addEventListener("click",()=>switchTab(btn.dataset.tab)));
 
-document.querySelectorAll(".source-tab").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    document.querySelectorAll(".source-tab").forEach(x=>x.classList.remove("active"));
-    document.querySelectorAll(".source-panel").forEach(x=>x.classList.remove("active"));
-    btn.classList.add("active");
-    document.querySelector(`#source-${btn.dataset.source}`)?.classList.add("active");
+function bindSourceTabs(){
+  document.querySelectorAll(".source-tab").forEach(btn=>{
+    btn.onclick=()=>{
+      document.querySelectorAll(".source-tab").forEach(x=>x.classList.remove("active"));
+      document.querySelectorAll(".source-panel").forEach(x=>x.classList.remove("active"));
+      btn.classList.add("active");
+      document.querySelector(`#source-${btn.dataset.source}`)?.classList.add("active");
+    };
   });
-});
+}
+bindSourceTabs();
 
 function uiErrorMessage(data,status){
   const stage=String(data?.stage||"");
@@ -76,6 +84,8 @@ function uiErrorMessage(data,status){
     "image-generation-error":"ไม่สามารถสร้างภาพได้ กรุณาลองใหม่",
     "image-upload-error":"สร้างภาพแล้ว แต่บันทึกภาพไม่สำเร็จ กรุณาลองใหม่",
     "image-db-error":"บันทึกข้อมูลภาพไม่สำเร็จ กรุณาลองใหม่",
+    "image-qa-error":"ระบบตรวจคุณภาพภาพไม่สำเร็จ กรุณาลองใหม่",
+    "brand-assets-error":"โหลดคลังภาพอ้างอิงไม่สำเร็จ",
     "history-query-error":"ไม่สามารถโหลดประวัติการสร้างได้",
     "history-image-query-error":"ไม่สามารถโหลดรูปจากประวัติการสร้างได้",
     "draft-complete":"ไม่สามารถเปิดฉบับร่างนี้ได้",
@@ -301,37 +311,141 @@ document.querySelector("#sourceFile")?.addEventListener("change",async e=>{
   }
 });
 
-/* ---------- Create / precheck ---------- */
+/* ---------- Create v13 / templates / precheck ---------- */
+
+const PRESETS = window.SPU_CONTENT_PRESET_MAP || {};
+const BRAND = window.SPU_CONTENT_BRAND || {};
+const VARIANT_LABELS = Object.fromEntries((BRAND.variants||[]).map(x=>[x.key,x.label]));
+
+function selectedPreset(){
+  return PRESETS[currentTemplateKey] || PRESETS.custom || {
+    key:"custom",label:"กำหนดเอง",contentType:"Custom",fields:[],referenceCategory:"general"
+  };
+}
+
+function renderTemplateGrid(){
+  const grid=document.querySelector("#templateGrid");
+  if(!grid)return;
+  const list=(window.SPU_CONTENT_PRESETS||[]).filter(x=>x.key!=="custom");
+  grid.innerHTML=list.map(p=>`
+    <button type="button" class="template-option ${p.key===currentTemplateKey?"active":""}" data-template="${esc(p.key)}">
+      <span class="check">✓</span>
+      <span class="t-ico">${esc(p.icon||"✦")}</span>
+      <b>${esc(p.label)}</b>
+      <small>${esc(p.summary||"")}</small>
+    </button>`).join("");
+  grid.querySelectorAll("[data-template]").forEach(btn=>{
+    btn.addEventListener("click",()=>selectTemplate(btn.dataset.template));
+  });
+}
+
+function renderTemplateFields(){
+  const p=selectedPreset();
+  const host=document.querySelector("#templateFields");
+  if(!host)return;
+  host.innerHTML=(p.fields||[]).map(f=>`
+    <label class="template-field">
+      <span>${esc(f.label)} ${f.required?'<b style="color:#d20b71">*</b>':""}</span>
+      ${f.type==="textarea"
+        ? `<textarea data-template-field="${esc(f.id)}" placeholder="${esc(f.placeholder||"")}" rows="3"></textarea>`
+        : `<input data-template-field="${esc(f.id)}" placeholder="${esc(f.placeholder||"")}">`}
+    </label>`).join("");
+  const summary=document.querySelector("#templateSummary");
+  if(summary)summary.textContent=p.summary||"กรอกข้อมูลสำคัญเท่าที่มี";
+  if(p.defaultAudience){
+    const a=document.querySelector("#audience");
+    if(a && [...a.options].some(x=>x.value===p.defaultAudience))a.value=p.defaultAudience;
+  }
+}
+
+function selectTemplate(key){
+  currentTemplateKey=PRESETS[key]?key:"custom";
+  renderTemplateGrid();
+  renderTemplateFields();
+}
+
+function setCreateMode(mode){
+  currentCreateMode=mode==="custom"?"custom":"quick";
+  document.querySelectorAll(".create-mode").forEach(x=>x.classList.toggle("active",x.dataset.createMode===currentCreateMode));
+  const shell=document.querySelector("#templateShell");
+  if(shell)shell.hidden=currentCreateMode==="custom";
+  if(currentCreateMode==="custom"){
+    currentTemplateKey="custom";
+    renderTemplateFields();
+  }else if(currentTemplateKey==="custom"){
+    currentTemplateKey="career";
+    renderTemplateGrid();
+    renderTemplateFields();
+  }
+}
+
+document.querySelectorAll(".create-mode").forEach(btn=>btn.addEventListener("click",()=>setCreateMode(btn.dataset.createMode)));
+
+function templateFieldValues(){
+  const p=selectedPreset();
+  const out={};
+  document.querySelectorAll("[data-template-field]").forEach(el=>{
+    const v=el.value.trim();
+    if(v)out[el.dataset.templateField]=v;
+  });
+  return {preset:p,values:out};
+}
+
+function composeTemplateFacts(preset,values){
+  const lines=[];
+  for(const f of preset.fields||[]){
+    const v=values[f.id];
+    if(v)lines.push(`${f.label}: ${v}`);
+  }
+  return lines.join("\n");
+}
+
+function clarificationPayload(){
+  return [...document.querySelectorAll(".precheck-answer")]
+    .map((input,i)=>({
+      question:lastPrecheck?.questions?.[i]||"",
+      answer:input.value.trim()
+    }))
+    .filter(x=>x.answer);
+}
 
 function baseBrief(){
   const facts=document.querySelector("#facts")?.value.trim()||"";
   const pasted=document.querySelector("#pastedData")?.value.trim()||"";
-
-  const answers=[...document.querySelectorAll(".precheck-answer")]
-    .map((input,i)=>input.value.trim()?`คำตอบเพิ่มเติม ${i+1}: ${input.value.trim()}`:"")
-    .filter(Boolean)
-    .join("\n");
-
-  const mergedPasted=[pasted,answers].filter(Boolean).join("\n\n");
+  const {preset,values}=templateFieldValues();
+  const structured=composeTemplateFacts(preset,values);
+  const verified=[structured,facts].filter(Boolean).join("\n\n");
 
   return {
-    content_type:"Custom",
+    template_key:preset.key||"custom",
+    template_fields:values,
+    content_type:preset.contentType||"Custom",
     topic:document.querySelector("#topic")?.value.trim()||"",
     objective:"",
     key_message:"",
-    verified_facts:facts,
-    pasted_data:mergedPasted,
-    locked_facts:"",
+    verified_facts:verified,
+    pasted_data:pasted,
+    locked_facts:structured,
+    clarifications:clarificationPayload(),
     audience:document.querySelector("#audience")?.value||"",
     market:"Global / General",
     platform:document.querySelector("#platform")?.value||"",
     language:document.querySelector("#language")?.value||"English",
     tone:document.querySelector("#tone")?.value||"ให้ AI แนะนำ",
-    cta:"",
+    cta:document.querySelector("#ctaInput")?.value.trim()||values.cta||"",
     creative_direction:"",
-    visual_mode:"verified",
-    visual_direction:""
+    visual_mode:"auto",
+    visual_direction:"",
+    reference_category:preset.referenceCategory||"general",
+    brand_asset_id:document.querySelector("#brandAssetSelect")?.value||""
   };
+}
+
+function validateRequiredTemplateFields(){
+  const p=selectedPreset();
+  const {values}=templateFieldValues();
+  const missing=(p.fields||[]).filter(f=>f.required && !values[f.id]).map(f=>f.label);
+  return missing;
 }
 
 function renderPrecheck(data){
@@ -342,7 +456,7 @@ function renderPrecheck(data){
   document.querySelector("#precheckQuestions").innerHTML=qs.map((x,i)=>`
     <div class="precheck-item question">
       <b>${i+1}. ${esc(x)}</b>
-      <input class="precheck-answer" placeholder="ตอบสั้น ๆ (ถ้ามี)">
+      <input class="precheck-answer" placeholder="ตอบสั้น ๆ เฉพาะข้อมูลที่ยืนยันได้">
     </div>`).join("");
 
   document.querySelector("#precheckAdvice").innerHTML=advice.map(x=>`<div class="precheck-item advice">✓ ${esc(x)}</div>`).join("");
@@ -350,10 +464,16 @@ function renderPrecheck(data){
 }
 
 async function precheck(){
+  const missing=validateRequiredTemplateFields();
   const b=baseBrief();
-  if(!b.topic){alert("กรุณาระบุเรื่องที่ต้องการสื่อสาร");return;}
+  if(!b.topic){notify("กรุณาระบุหัวข้อโพสต์","error");return;}
+  if(missing.length){
+    notify(`กรุณากรอกข้อมูลสำคัญ: ${missing.slice(0,2).join(", ")}`,"error");
+    return;
+  }
+
   const btn=document.querySelector("#precheckContent");
-  btn.disabled=true;const old=btn.textContent;btn.textContent="AI กำลังตรวจข้อมูล…";
+  const done=markButton(btn,"busy","AI กำลังตรวจข้อมูล…");
   try{
     const data=await api({action:"precheck_content",brief:b});
     renderPrecheck(data);
@@ -361,18 +481,39 @@ async function precheck(){
       await generatePost(false);
     }else{
       document.querySelector("#precheckCard").scrollIntoView({behavior:"smooth",block:"center"});
+      done("done","ตรวจข้อมูลแล้ว");
+      return;
     }
-  }catch(err){alert(`AI ตรวจข้อมูลไม่สำเร็จ: ${err.message||err}`);}
-  finally{btn.disabled=false;btn.textContent=old;}
+    done("done","กำลังสร้างโพสต์");
+  }catch(err){
+    done("error",`AI ตรวจข้อมูลไม่สำเร็จ: ${err.message||err}`);
+  }
 }
 document.querySelector("#precheckContent")?.addEventListener("click",precheck);
-
 document.querySelector("#editInputBtn")?.addEventListener("click",()=>document.querySelector("#topic")?.focus());
 
-/* ---------- Generation / image ---------- */
+/* ---------- Create v13 / generation / image variants ---------- */
 
 function setPreviewLoading(text){
   document.querySelector("#previewStatus").textContent=text;
+}
+
+function setQualityGate(result){
+  const gate=document.querySelector("#qualityGate");
+  const text=document.querySelector("#qualityGateText");
+  if(!gate||!text)return;
+  gate.classList.remove("pass","warn","fail");
+  if(!result){
+    text.textContent="ระบบจะตรวจภาษา ข้อมูล และคุณภาพภาพก่อนแสดงผล";
+    return;
+  }
+  const score=Number(result.score||0);
+  const passed=result.pass===true || score>=7.5;
+  gate.classList.add(passed?"pass":score>=6?"warn":"fail");
+  const issue=(result.issues||[])[0];
+  text.textContent=passed
+    ? `ผ่านการตรวจคุณภาพ${score?` · ${score.toFixed(1)}/10`:""}`
+    : `ควรตรวจเพิ่มเติม${score?` · ${score.toFixed(1)}/10`:""}${issue?` · ${issue}`:""}`;
 }
 
 function renderDraft(data){
@@ -381,79 +522,101 @@ function renderDraft(data){
   currentDraft={
     ...(currentDraft||{}),
     id:currentDraftId,
+    topic:data?.brief?.topic||baseBrief().topic,
     input_payload:data?.brief||baseBrief(),
+    creative_brief:data?.creative_brief||{},
+    poster_copy:g.poster_copy||{},
+    art_direction:g.art_direction||{},
     generation:g
   };
 
-  document.querySelector("#mockHook").textContent=g.hook||"—";
+  document.querySelector("#mockHook").textContent=g.hook||g.poster_copy?.title||"—";
   document.querySelector("#mockCaption").textContent=g.caption||"—";
   document.querySelector("#mockHashtags").textContent=Array.isArray(g.hashtags)?g.hashtags.join(" "):"—";
   document.querySelector("#whyText").textContent=g.why_this_direction_th||"—";
   setPreviewLoading("กำลังสร้างภาพ…");
+  setQualityGate(null);
 }
 
-function verifiedFactLines(){
-  const b=currentDraft?.input_payload||baseBrief();
-  const text=[b.verified_facts,b.pasted_data].filter(Boolean).join("\n");
-  return text.split(/\n+/).map(x=>x.replace(/^[•\-\s]+/,"").trim()).filter(Boolean).slice(0,6);
-}
-
-function renderImage(url,mode){
+function renderImage(url,mode,quality=null){
   currentImageUrl=url||null;
-  currentImageMode=mode||"concept";
+  currentImageMode=mode||"poster";
   const visual=document.querySelector("#postPreviewVisual");
-
+  visual.classList.remove("poster-mode");
   if(!url){
-    visual.innerHTML=`<div class="preview-placeholder"><div>SPUIC</div><strong>ยังไม่มีภาพ</strong><span>สามารถกด “เปลี่ยนภาพ” เพื่อลองใหม่</span></div>`;
+    visual.innerHTML=`<div class="preview-placeholder"><div>SPUIC</div><strong>ยังไม่มีภาพ</strong><span>กด “เปลี่ยนภาพนี้” เพื่อลองใหม่</span></div>`;
     setPreviewLoading("ข้อความพร้อมใช้");
+    setQualityGate(quality);
     return;
   }
-
-  const hook=currentDraft?.generation?.hook||"";
-  const facts=verifiedFactLines();
-
-  if(mode==="verified"){
-    visual.classList.add("poster-mode");
-    const cta=currentDraft?.generation?.cta||"Save this post";
-    visual.innerHTML=`
-      <div class="poster-composite">
-        <div class="poster-hero">
-          <img src="${esc(url)}" alt="Generated hero visual">
-          <div class="poster-brand">SPUIC · SRIPATUM UNIVERSITY</div>
-        </div>
-        <div class="poster-body">
-          <h3>${esc(hook||currentDraft?.topic||"SPUIC")}</h3>
-          <div class="poster-facts">
-            ${facts.map((x,i)=>{
-              const parts=x.split(/:\s*/);
-              const label=parts.length>1?parts.shift():`KEY DATE ${i+1}`;
-              const value=parts.length?parts.join(": "):x;
-              return `<div class="poster-fact-card"><b>${esc(label)}</b><span>${esc(value)}</span></div>`;
-            }).join("")}
-          </div>
-          <div class="poster-cta">${esc(cta)}</div>
-        </div>
-      </div>`;
-  }else{
-    visual.classList.remove("poster-mode");
-    visual.innerHTML=`<img src="${esc(url)}" alt="Generated visual">`;
-  }
-
+  visual.innerHTML=`<img src="${esc(url)}" alt="AI generated SPUIC social poster">`;
   setPreviewLoading("พร้อมใช้งาน");
-  notify("สร้างภาพเรียบร้อย","success");
+  setQualityGate(quality);
 }
 
-async function generateImage(){
+function variantCard(item){
+  const label=VARIANT_LABELS[item.variant_key]||item.variant_key||"ตัวเลือก";
+  const score=Number(item.quality_score||0);
+  return `<button type="button" class="variant-card ${item.variant_key===selectedVariantKey?"active":""}" data-variant="${esc(item.variant_key)}">
+    ${score?`<span class="variant-score">${score.toFixed(1)}</span>`:""}
+    <img src="${esc(item.signed_url||"")}" alt="${esc(label)}">
+    <b>${esc(label)}</b>
+    <small>${item.retried?"ปรับใหม่หลัง Quality Gate":"AI Art Direction"}</small>
+  </button>`;
+}
+
+function renderVariants(items){
+  currentImageVariants=Array.isArray(items)?items:[];
+  if(!currentImageVariants.length){
+    document.querySelector("#imageVariants").innerHTML=`<div class="variant-empty">ยังไม่มีตัวเลือกภาพ</div>`;
+    renderImage(null,null,null);
+    return;
+  }
+  if(!currentImageVariants.some(x=>x.variant_key===selectedVariantKey)){
+    selectedVariantKey=currentImageVariants[0].variant_key;
+  }
+  document.querySelector("#imageVariants").innerHTML=currentImageVariants.map(variantCard).join("");
+  document.querySelectorAll(".variant-card").forEach(btn=>{
+    btn.addEventListener("click",()=>selectVariant(btn.dataset.variant,true));
+  });
+  selectVariant(selectedVariantKey,false);
+}
+
+async function selectVariant(key,persist=true){
+  const item=currentImageVariants.find(x=>x.variant_key===key);
+  if(!item)return;
+  selectedVariantKey=key;
+  document.querySelectorAll(".variant-card").forEach(x=>x.classList.toggle("active",x.dataset.variant===key));
+  renderImage(item.signed_url,item.generation_mode,item.quality_result||{score:item.quality_score,pass:item.quality_score>=7.5,issues:[]});
+  if(persist && item.id && currentDraftId){
+    try{await api({action:"select_image",draft_id:currentDraftId,image_id:item.id});}catch(_){}
+  }
+}
+
+async function generateImageVariants(keys=null){
   if(!currentDraftId){notify("ยังไม่มีฉบับร่างสำหรับสร้างภาพ","error");return;}
   const btn=document.querySelector("#changeImageBtn");
-  const done=markButton(btn,"busy","กำลังสร้างภาพ…");
-  setPreviewLoading("กำลังสร้างภาพ…");
+  const done=markButton(btn,"busy",keys?.length===1?"กำลังเปลี่ยนภาพ…":"กำลังสร้าง 3 แนวทาง…");
+  setPreviewLoading("AI กำลังออกแบบภาพ…");
   try{
-    const data=await api({action:"generate_image",draft_id:currentDraftId});
-    renderImage(data?.image?.signed_url,data?.image?.generation_mode);
-    done("done","เปลี่ยนภาพเรียบร้อย");
+    const data=await api({
+      action:"generate_image_variants",
+      draft_id:currentDraftId,
+      variant_keys:keys||["recommended","alternative","creative"]
+    });
+    if(keys?.length===1){
+      const fresh=data?.images?.[0];
+      currentImageVariants=currentImageVariants.filter(x=>x.variant_key!==keys[0]);
+      if(fresh)currentImageVariants.push(fresh);
+      renderVariants(currentImageVariants);
+      await selectVariant(keys[0],true);
+    }else{
+      selectedVariantKey="recommended";
+      renderVariants(data?.images||[]);
+    }
+    done("done","สร้างภาพเรียบร้อย");
   }catch(err){
-    renderImage(null,null);
+    setPreviewLoading("สร้างภาพไม่สำเร็จ");
     done("error",`สร้างภาพไม่สำเร็จ: ${err.message||err}`);
   }
 }
@@ -461,7 +624,7 @@ async function generateImage(){
 async function generatePost(isRegenerate=false){
   const btn=document.querySelector("#generateMock");
   if(btn){btn.disabled=true;btn.textContent="กำลังสร้าง…";}
-  setPreviewLoading("กำลังสร้างข้อความ…");
+  setPreviewLoading("AI กำลังสร้าง Brief และข้อความ…");
 
   try{
     const data=await api({
@@ -470,17 +633,79 @@ async function generatePost(isRegenerate=false){
       precheck:lastPrecheck||{}
     });
     renderDraft(data);
-    await generateImage();
+    await generateImageVariants();
+    document.querySelector("#precheckCard").hidden=true;
   }catch(err){
     setPreviewLoading("สร้างไม่สำเร็จ");
-    alert(`สร้างโพสต์ไม่สำเร็จ: ${err.message||err}`);
+    notify(`สร้างโพสต์ไม่สำเร็จ: ${err.message||err}`,"error");
   }finally{
-    if(btn){btn.disabled=false;btn.textContent="สร้างตามคำแนะนำ";}
+    if(btn){btn.disabled=false;btn.textContent="ใช้ข้อมูลนี้และสร้าง";}
   }
 }
 document.querySelector("#generateMock")?.addEventListener("click",()=>generatePost(false));
 document.querySelector("#regenerateBtn")?.addEventListener("click",()=>generatePost(true));
-document.querySelector("#changeImageBtn")?.addEventListener("click",generateImage);
+document.querySelector("#changeImageBtn")?.addEventListener("click",()=>generateImageVariants([selectedVariantKey]));
+
+/* ---------- Brand assets ---------- */
+
+async function loadBrandAssets(){
+  const sel=document.querySelector("#brandAssetSelect");
+  if(!sel)return;
+  try{
+    const data=await api({action:"list_brand_assets"});
+    brandAssets=data.items||[];
+    sel.innerHTML=`<option value="">ให้ระบบเลือกอัตโนมัติ</option>`+
+      brandAssets.map(x=>`<option value="${esc(x.id)}">${esc(x.title||x.asset_type||"Reference")}</option>`).join("");
+  }catch(_){
+    sel.innerHTML=`<option value="">ให้ระบบเลือกอัตโนมัติ</option>`;
+  }
+}
+
+/* ---------- Quick edit ---------- */
+
+document.querySelector("#quickEditRow")?.addEventListener("click",async e=>{
+  const btn=e.target.closest("[data-quick-edit]");
+  if(!btn||!currentDraftId)return;
+
+  const map={
+    shorter:"ทำให้ข้อความสั้นลงและกระชับขึ้น โดยคงข้อเท็จจริงทั้งหมด",
+    formal:"ปรับให้เป็นทางการและเป็นสากลขึ้น โดยไม่เพิ่มข้อเท็จจริงใหม่",
+    cta:"เพิ่ม CTA ที่ชัดเจนและเหมาะกับโพสต์ โดยไม่สร้างข้อมูลหรือลิงก์ใหม่"
+  };
+
+  const instruction=map[btn.dataset.quickEdit];
+  if(!instruction)return;
+
+  const done=markButton(btn,"busy","กำลังปรับ…");
+
+  try{
+    const data=await api({
+      action:"revise_text",
+      draft_id:currentDraftId,
+      instruction
+    });
+
+    const g=data.generation||{};
+    currentDraft=currentDraft||{};
+    currentDraft.generation=g;
+
+    document.querySelector("#mockHook").textContent=g.hook||"—";
+    document.querySelector("#mockCaption").textContent=g.caption||"—";
+    document.querySelector("#mockHashtags").textContent=Array.isArray(g.hashtags)?g.hashtags.join(" "):"—";
+
+    done("done","ปรับข้อความแล้ว");
+  }catch(err){
+    done("error",`ปรับข้อความไม่สำเร็จ: ${err.message||err}`);
+  }
+});
+
+/* ---------- Initialize Create v13 ---------- */
+
+renderTemplateGrid();
+renderTemplateFields();
+setCreateMode("quick");
+loadBrandAssets();
+
 
 /* ---------- Edit / save / copy ---------- */
 
@@ -559,58 +784,20 @@ function wrapText(ctx,text,maxWidth){
 }
 
 async function downloadCompositeImage(){
-  if(!currentImageUrl){alert("ยังไม่มีภาพให้ดาวน์โหลด");return;}
-
+  if(!currentImageUrl){notify("ยังไม่มีภาพให้ดาวน์โหลด","error");return;}
   try{
     const res=await fetch(currentImageUrl);
+    if(!res.ok)throw new Error("โหลดไฟล์ภาพไม่สำเร็จ");
     const blob=await res.blob();
-    const bitmap=await createImageBitmap(blob);
-    const canvas=document.createElement("canvas");
-    canvas.width=1080;canvas.height=1350;
-    const ctx=canvas.getContext("2d");
-
-    const scale=Math.max(canvas.width/bitmap.width,canvas.height/bitmap.height);
-    const w=bitmap.width*scale,h=bitmap.height*scale;
-    ctx.drawImage(bitmap,(canvas.width-w)/2,(canvas.height-h)/2,w,h);
-
-    if(currentImageMode==="verified"){
-      ctx.fillStyle="rgba(255,255,255,.93)";
-      ctx.fillRect(55,620,970,675);
-
-      ctx.fillStyle="#c20d6b";
-      ctx.font="700 48px Arial";
-      let y=700;
-      const headline=currentDraft?.generation?.hook||currentDraft?.topic||"SPUIC";
-      for(const line of wrapText(ctx,headline,880).slice(0,3)){
-        ctx.fillText(line,95,y);y+=58;
-      }
-
-      ctx.font="600 28px Arial";
-      ctx.fillStyle="#1f2937";
-      y+=12;
-      for(const fact of verifiedFactLines()){
-        const lines=wrapText(ctx,fact,860).slice(0,2);
-        ctx.fillStyle="rgba(248,250,252,.98)";
-        ctx.fillRect(85,y-32,900,lines.length*38+28);
-        ctx.fillStyle="#1f2937";
-        let ly=y;
-        for(const line of lines){ctx.fillText(line,105,ly);ly+=38;}
-        y=ly+18;
-        if(y>1260)break;
-      }
-    }
-
-    canvas.toBlob(blob=>{
-      const url=URL.createObjectURL(blob);
-      const a=document.createElement("a");
-      a.href=url;
-      a.download=`SPUIC-${(currentDraft?.topic||"post").replace(/[^\w\-]+/g,"-").slice(0,50)}.png`;
-      a.click();
-      notify("ดาวน์โหลดภาพแล้ว","success");
-      setTimeout(()=>URL.revokeObjectURL(url),1000);
-    },"image/png");
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url;
+    a.download=`SPUIC-${(currentDraft?.topic||"post").replace(/[^\w\-]+/g,"-").slice(0,50)}-${selectedVariantKey||"poster"}.png`;
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    notify("ดาวน์โหลดภาพแล้ว","success");
   }catch(err){
-    alert(`ดาวน์โหลดภาพไม่สำเร็จ: ${err.message||err}`);
+    notify(`ดาวน์โหลดภาพไม่สำเร็จ: ${err.message||err}`,"error");
   }
 }
 document.querySelector("#downloadImageBtn")?.addEventListener("click",downloadCompositeImage);
@@ -708,6 +895,7 @@ document.querySelector("#historyGrid")?.addEventListener("click",async e=>{
     document.querySelector("#topic").value=item?.topic||b.topic||"";
     document.querySelector("#facts").value=b.verified_facts||item?.source_text||"";
     document.querySelector("#pastedData").value=b.pasted_data||"";
+    if(b.template_key && PRESETS[b.template_key]){currentTemplateKey=b.template_key;renderTemplateGrid();renderTemplateFields();}
     if(item?.audience)document.querySelector("#audience").value=item.audience;
     if(item?.language)document.querySelector("#language").value=item.language;
     if(item?.platform)document.querySelector("#platform").value=item.platform;
@@ -725,7 +913,14 @@ document.querySelector("#historyGrid")?.addEventListener("click",async e=>{
       document.querySelector("#mockCaption").textContent=currentDraft.generation?.caption||"—";
       document.querySelector("#mockHashtags").textContent=(currentDraft.generation?.hashtags||[]).join(" ")||"—";
       document.querySelector("#whyText").textContent=currentDraft.generation?.why_this_direction_th||"—";
-      renderImage(currentDraft.latest_image?.signed_url,currentDraft.latest_image?.generation_mode||inferLocalMode(currentDraft.input_payload));
+      if(Array.isArray(currentDraft.images)&&currentDraft.images.length){
+        currentImageVariants=currentDraft.images.filter(x=>x.signed_url);
+      }
+      renderImage(
+        currentDraft.latest_image?.signed_url,
+        currentDraft.latest_image?.generation_mode||"poster",
+        currentDraft.latest_image?.quality_result||null
+      );
       switchTab("create");
     }catch(err){alert(`เปิดฉบับร่างไม่สำเร็จ: ${err.message||err}`);}
   }

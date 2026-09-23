@@ -14,6 +14,7 @@ let lastPrecheck = null;
 let currentTemplateKey = "career";
 let currentCreateMode = "quick";
 let brandAssets = [];
+let brandAssetsLoaded = false;
 
 const fmt = n => new Intl.NumberFormat("en-US").format(Number(n||0));
 const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
@@ -51,6 +52,12 @@ function markButton(btn,state,label){
 function switchTab(name){
   tabs.forEach(x=>x.classList.toggle("active",x.dataset.tab===name));
   panels.forEach(x=>x.classList.toggle("active",x.id===`tab-${name}`));
+
+  if(name==="create" && !brandAssetsLoaded){
+    brandAssetsLoaded=true;
+    loadBrandAssets();
+  }
+
   if(name==="history") loadHistory();
 }
 
@@ -566,7 +573,6 @@ async function loadBrandAssets(){
 renderTemplateGrid();
 renderTemplateFields();
 setCreateMode("quick");
-loadBrandAssets();
 
 
 /* ---------- Edit / save / copy ---------- */
@@ -611,7 +617,6 @@ document.querySelector("#saveDraftBtn")?.addEventListener("click",async()=>{
   try{
     await api({action:"save_draft",draft_id:currentDraftId});
     setPreviewLoading("บันทึกฉบับร่างแล้ว");
-    await loadHistory();
     done("done","บันทึกฉบับร่างแล้ว");
   }catch(err){done("error",`บันทึกฉบับร่างไม่สำเร็จ: ${err.message||err}`);}
 });
@@ -790,4 +795,3 @@ function inferLocalMode(b){
   return /(calendar|deadline|tuition|fee|scholarship|schedule|exam|registration|orientation|ปฏิทิน|กำหนด|ค่าเทอม|ทุน|สอบ|ลงทะเบียน)/i.test(text)?"verified":"concept";
 }
 
-loadHistory();

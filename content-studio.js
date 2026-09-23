@@ -549,6 +549,61 @@ async function generateOneImage(){
   }
 }
 
+async function generatePost(isRegenerate=false){
+  const mainBtn = isRegenerate
+    ? document.querySelector("#regenerateBtn")
+    : document.querySelector("#precheckContent");
+
+  const confirmBtn = document.querySelector("#generateMock");
+  const done = markButton(
+    mainBtn,
+    "busy",
+    "AI กำลังคิดกลยุทธ์และเขียนโพสต์…"
+  );
+
+  if(confirmBtn) confirmBtn.disabled = true;
+
+  setPreviewLoading("กำลังคิด PR Strategy + ข้อความ…");
+
+  try{
+    const data = await api({
+      action: "generate_content",
+      brief: baseBrief()
+    });
+
+    if(data?.stage === "clarification-required"){
+      renderPrecheck(data);
+      setPreviewLoading("รอข้อมูลยืนยัน");
+      done("done","ต้องยืนยันข้อมูลสำคัญก่อน");
+      return;
+    }
+
+    document.querySelector("#precheckCard").hidden = true;
+
+    renderDraft(data);
+
+    // Normal path: exactly one image generation.
+    await generateOneImage();
+
+    done("done","สร้างโพสต์และภาพเรียบร้อย");
+  }catch(err){
+    console.error("generatePost failed", err);
+    setPreviewLoading("สร้างไม่สำเร็จ");
+    done("error",`สร้างโพสต์ไม่สำเร็จ: ${err.message||err}`);
+  }finally{
+    if(confirmBtn) confirmBtn.disabled = false;
+  }
+}
+
+document.querySelector("#generateMock")
+  ?.addEventListener("click",()=>generatePost(false));
+
+document.querySelector("#regenerateBtn")
+  ?.addEventListener("click",()=>generatePost(true));
+
+document.querySelector("#changeImageBtn")
+  ?.addEventListener("click",generateOneImage);
+
 /* ---------- Brand assets ---------- */
 
 async function loadBrandAssets(){

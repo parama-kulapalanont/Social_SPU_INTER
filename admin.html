@@ -4,197 +4,140 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>SPU Social Intelligence Admin</title>
-  <link rel="stylesheet" href="styles.css">
-
-  <style>
-    .login-box {
-      max-width: 460px;
-      margin: 40px auto;
-    }
-
-    .login-form {
-      display: grid;
-      gap: 12px;
-      margin-top: 18px;
-    }
-
-    .login-form input {
-      width: 100%;
-      min-height: 46px;
-      border: 1px solid #d1d5db;
-      border-radius: 10px;
-      padding: 0 14px;
-      font-size: 15px;
-    }
-  </style>
+  <link rel="stylesheet" href="admin.css?v=1">
 </head>
-
 <body>
-  <main class="shell">
-
-    <header class="topbar">
-      <div>
-        <div class="eyebrow">SPU SOCIAL INTELLIGENCE</div>
-        <h1>Social Data Collection</h1>
-        <p>ระบบจัดการการดึงข้อมูล Facebook และ Instagram</p>
-      </div>
-
-      <div id="userBadge" class="user-badge hidden"></div>
-    </header>
-
-    <!-- LOGIN -->
-    <section id="loginPanel" class="panel login-box hidden">
-      <h2>Admin Login</h2>
-      <p>เข้าสู่ระบบด้วยบัญชีที่กำหนดใน Supabase</p>
-
-      <form id="loginForm" class="login-form">
-        <input
-          id="email"
-          type="email"
-          placeholder="Email"
-          autocomplete="email"
-          required
-        >
-
-        <input
-          id="password"
-          type="password"
-          placeholder="Password"
-          autocomplete="current-password"
-          required
-        >
-
-        <button type="submit" class="primary-action">
-          เข้าสู่ระบบ
-        </button>
+  <main id="loginPanel" class="auth-shell hidden">
+    <section class="auth-card">
+      <div class="auth-brand"><div class="brand-main">SPU</div><div class="brand-bar"></div><div class="brand-sub">SOCIAL INTELLIGENCE</div></div>
+      <div class="eyebrow">ADMIN CONSOLE</div>
+      <h1>Social Data Collection</h1>
+      <p>เข้าสู่ระบบด้วยบัญชี Admin ที่กำหนดใน Supabase</p>
+      <form id="loginForm" class="auth-form">
+        <input id="email" type="email" placeholder="Email" autocomplete="email" required>
+        <input id="password" type="password" placeholder="Password" autocomplete="current-password" required>
+        <button type="submit" class="btn pink auth-submit">เข้าสู่ระบบ</button>
       </form>
-
       <div id="loginMessage" class="message"></div>
     </section>
+  </main>
 
-    <!-- NO ADMIN PERMISSION -->
-    <section id="forbiddenPanel" class="panel login-box hidden">
-      <h2>ไม่มีสิทธิ์ใช้งาน</h2>
+  <main id="forbiddenPanel" class="auth-shell hidden">
+    <section class="auth-card">
+      <div class="eyebrow">ACCESS DENIED</div>
+      <h1>ไม่มีสิทธิ์ใช้งาน</h1>
       <p id="forbiddenMessage"></p>
-
-      <button id="forbiddenLogoutBtn" class="secondary" style="margin-top:16px">
-        ออกจากระบบ
-      </button>
+      <button id="forbiddenLogoutBtn" class="btn" type="button">ออกจากระบบ</button>
     </section>
+  </main>
 
-    <!-- ADMIN -->
-    <section id="adminApp" class="hidden">
+  <div id="adminApp" class="app hidden">
+    <aside class="sidebar">
+      <div class="brand"><div class="brand-main">SPU</div><div class="brand-bar"></div><div class="brand-sub">SOCIAL INTELLIGENCE</div></div>
+      <nav class="nav">
+        <button class="active" type="button" data-page="overview"><span class="nav-icon">▥</span>Overview</button>
+        <button type="button" data-page="sources"><span class="nav-icon">◎</span>Sources</button>
+        <button type="button" data-page="logs"><span class="nav-icon">≡</span>Logs</button>
+      </nav>
+      <div class="side-user"><strong>Admin</strong><span id="sideUserEmail">—</span><button id="logoutBtn" class="signout" type="button">Sign out</button></div>
+    </aside>
 
-      <section class="panel collection-hero">
-
-        <div class="collection-head">
-          <div>
-            <div class="eyebrow">MANUAL COLLECTION</div>
-            <h2>ดึงข้อมูลใหม่</h2>
-
-            <p>
-              ระบบจะดึงข้อมูลจาก Source ที่เปิดใช้งาน
-              และทำงานพร้อมกันสูงสุด 2 Source
-            </p>
-          </div>
-
-          <div class="collection-actions">
-            <button id="logoutBtn" class="secondary">
-              ออกจากระบบ
-            </button>
-
-            <button id="refreshStatusBtn" class="secondary">
-              รีเฟรชสถานะ
-            </button>
-
-            <button id="startCollectionBtn" class="primary-action">
-              ดึงข้อมูลใหม่
-            </button>
-          </div>
+    <main class="main">
+      <section class="page active" id="page-overview">
+        <div class="header">
+          <div><div class="eyebrow">SPU SOCIAL INTELLIGENCE</div><h1>Social Data Collection</h1><p>ระบบจัดการการดึงข้อมูล Facebook และ Instagram</p></div>
+          <div id="userBadge" class="user-pill">—</div>
         </div>
-
         <div id="statusMessage" class="message"></div>
 
-        <div class="batch-summary">
-
-          <article>
-            <span>สถานะ Batch</span>
-            <strong id="batchStatus">—</strong>
-          </article>
-
-          <article>
-            <span>เสร็จแล้ว</span>
-            <strong id="completedCount">0</strong>
-          </article>
-
-          <article>
-            <span>กำลังทำงาน</span>
-            <strong id="runningCount">0</strong>
-          </article>
-
-          <article>
-            <span>รอคิว</span>
-            <strong id="pendingCount">0</strong>
-          </article>
-
-          <article>
-            <span>ผิดพลาด</span>
-            <strong id="failedCount">0</strong>
-          </article>
-
+        <div class="kpis">
+          <div class="card kpi"><div class="kpi-label">Sources</div><div class="kpi-value" id="kpiSources">—</div><div class="kpi-note">Facebook + Instagram</div></div>
+          <div class="card kpi"><div class="kpi-label">สำเร็จ</div><div class="kpi-value green" id="kpiOk">—</div><div class="kpi-note">รอบล่าสุดต่อ Source</div></div>
+          <div class="card kpi"><div class="kpi-label">ต้องตรวจ</div><div class="kpi-value orange" id="kpiIssue">—</div><div class="kpi-note">Error / Media ไม่ครบ</div></div>
+          <div class="card kpi"><div class="kpi-label">Apify Items</div><div class="kpi-value blue" id="kpiApify">—</div><div class="kpi-note">รอบล่าสุดต่อ Source</div></div>
+          <div class="card kpi"><div class="kpi-label">New Posts</div><div class="kpi-value" id="kpiNew">—</div><div class="kpi-note">บันทึกใหม่</div></div>
         </div>
 
-        <div class="progress-wrap">
-
-          <div class="progress-meta">
-            <span id="progressLabel">0 / 0 Sources</span>
-            <span id="progressPercent">0%</span>
+        <div class="content-grid">
+          <div class="card section">
+            <div class="section-head"><div><h2>Batch ล่าสุด</h2><p id="batchSubtitle">Manual Collection</p></div><span id="batchBadge" class="status info">กำลังโหลด…</span></div>
+            <div class="batch-meta">
+              <div class="meta"><span>Batch ID</span><strong id="batchId">—</strong></div>
+              <div class="meta"><span>เริ่ม</span><strong id="batchStarted">—</strong></div>
+              <div class="meta"><span>เสร็จ</span><strong id="batchFinished">—</strong></div>
+              <div class="meta"><span>สถานะ</span><strong id="batchStatus">—</strong></div>
+            </div>
+            <div class="progress-wrap">
+              <div class="progress-label"><span id="progressText">0 / 0 Sources</span><strong id="progressPct">0%</strong></div>
+              <div class="progress"><div id="progressBar"></div></div>
+            </div>
+            <div class="actions">
+              <button id="startCollectionBtn" class="btn pink" type="button">ดึงข้อมูลใหม่</button>
+              <button id="refreshStatusBtn" class="btn ghost" type="button">รีเฟรชสถานะ</button>
+              <button id="viewSourcesBtn" class="btn ghost" type="button">ดู Sources ทั้งหมด</button>
+            </div>
           </div>
 
-          <div
-            class="progress-track"
-            aria-valuemin="0"
-            aria-valuemax="100"
-            aria-valuenow="0"
-          >
-            <div id="progressBar" class="progress-bar"></div>
+          <div class="card section">
+            <div class="section-head"><div><h2>รายการที่ต้องตรวจ</h2><p>แสดงเฉพาะ Source ที่มีปัญหา</p></div></div>
+            <div id="issueList" class="issue-list"><div class="empty">กำลังโหลด…</div></div>
           </div>
-
         </div>
-
-        <div class="batch-meta-grid">
-
-          <div>
-            <span>Batch ID</span>
-            <strong id="batchId">—</strong>
-          </div>
-
-          <div>
-            <span>เริ่ม</span>
-            <strong id="batchStarted">—</strong>
-          </div>
-
-          <div>
-            <span>เสร็จ</span>
-            <strong id="batchFinished">—</strong>
-          </div>
-
-          <div>
-            <span>โหมด</span>
-            <strong>Manual</strong>
-          </div>
-
-        </div>
-
       </section>
 
-    </section>
+      <section class="page" id="page-sources">
+        <div class="header">
+          <div><div class="eyebrow">SPU SOCIAL INTELLIGENCE</div><h1>Sources Management</h1><p>ผลการดึงล่าสุดของทุกมหาวิทยาลัย — รายละเอียดและ Retry อยู่ในจุดเดียว</p></div>
+          <div id="sourceCountBadge" class="user-pill">— Sources</div>
+        </div>
+        <div class="card table-card">
+          <div class="toolbar">
+            <input id="sourceSearch" placeholder="ค้นหา Source / URL / มหาวิทยาลัย">
+            <select id="platformFilter"><option value="">ทุก Platform</option><option value="facebook">Facebook</option><option value="instagram">Instagram</option></select>
+            <select id="statusFilter"><option value="">ทุกสถานะ</option><option value="ok">ปกติ</option><option value="partial">ไม่ครบ</option><option value="error">Error</option></select>
+            <button id="refreshSourcesBtn" class="btn" type="button">รีเฟรช</button>
+          </div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Source</th><th>Platform</th><th>ล่าสุด</th><th>Apify</th><th>New</th><th>Duplicate</th><th>Media</th><th>Status</th><th></th></tr></thead>
+            <tbody id="sourceRows"></tbody>
+          </table></div>
+        </div>
+      </section>
 
-  </main>
+      <section class="page" id="page-logs">
+        <div class="header">
+          <div><div class="eyebrow">SPU SOCIAL INTELLIGENCE</div><h1>Collection Logs</h1><p>ตรวจย้อนหลังเมื่อมี Error หรือเมื่อต้องการดูรายละเอียดการทำงาน</p></div>
+        </div>
+        <div class="card table-card">
+          <div class="toolbar">
+            <select id="logLevel"><option value="">ทุกระดับ</option><option value="SUCCESS">SUCCESS</option><option value="ERROR">ERROR</option><option value="RUNNING">RUNNING</option></select>
+            <input id="logSearch" placeholder="ค้นหา Source / Error / Run mode">
+            <button id="refreshLogsBtn" class="btn" type="button">รีเฟรช</button>
+          </div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>เวลา</th><th>ระดับ</th><th>Source</th><th>Mode</th><th>Apify</th><th>New</th><th>Duplicate</th><th>รายละเอียด</th><th></th></tr></thead>
+            <tbody id="logRows"></tbody>
+          </table></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="drawer" class="drawer-bg">
+    <aside class="drawer">
+      <div class="drawer-top">
+        <div><div id="drawerEyebrow" class="eyebrow">SOURCE DETAIL</div><h2 id="drawerTitle">Source</h2><p id="drawerSub"></p></div>
+        <button id="closeDrawerBtn" class="close" type="button">ปิด</button>
+      </div>
+      <div id="drawerBody"></div>
+      <div id="drawerActions" class="drawer-actions"></div>
+    </aside>
+  </div>
+
+  <div id="toast" class="toast"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
-  <script src="admin.js"></script>
-
+  <script src="admin.js?v=1"></script>
 </body>
 </html>

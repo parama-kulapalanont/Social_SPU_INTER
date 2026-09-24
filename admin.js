@@ -484,10 +484,8 @@ function openSource(sourceId) {
     </div>
 
     <div class="policy">
-      Collector ใช้ค่าที่กำหนดใน Source นี้:
-      Probe ${Number(source.probe_limit || 0)} →
-      สูงสุด ${Number(source.max_new_posts || 0)} posts.
-      ระบบตรวจ Duplicate ก่อนบันทึกทุกครั้ง
+      Collector จะดึง 30 โพสต์ล่าสุดของ Source นี้ทันทีทุกครั้ง
+      โดยเริ่มจากโพสต์ล่าสุด และตรวจ Duplicate ก่อนบันทึก
     </div>`;
 
   let actions = '<button class="btn" type="button" id="drawerCloseAction">ปิด</button>';
@@ -541,7 +539,7 @@ async function retrySource(sourceId, scope, button) {
 
   const confirmMessage = scope === "full"
     ? `${labels[scope]}: ${source.institution_code} ${source.platform}\n\n` +
-      `โหมดนี้จะ re-fetch สูงสุด ${source.max_new_posts} posts ตามค่าของ Source`
+      `ระบบจะดึง 30 โพสต์ล่าสุดของ Source นี้`
     : `${labels[scope]}: ${source.institution_code} ${source.platform}`;
 
   if (!window.confirm(confirmMessage)) return;
@@ -590,15 +588,15 @@ function openBatchPreview() {
   $("#drawerBody").innerHTML = `
     <div class="policy">
       นี่คือ Batch ปกติของระบบเดิม โดย social-collection-control จะจัดคิว
-      และทำงานพร้อมกันสูงสุดตามค่าที่ระบบกำหนดไว้
+      แต่แต่ละ Source จะดึง 30 โพสต์ล่าสุดทันที ไม่มี Probe 5 อีกต่อไป
     </div>
 
     <div class="batch-preview">
       ${enabled.map(source => `
         <div class="preview">
           <strong>${safeText(source.institution_code)} · ${safeText(source.platform)}</strong>
-          <span>Probe ${Number(source.probe_limit || 0)}</span>
-          <span>Max ${Number(source.max_new_posts || 0)}</span>
+          <span>Latest 30</span>
+          <span>${source.status === "ok" ? "พร้อม" : "ตรวจได้"}</span>
         </div>
       `).join("")}
     </div>`;
